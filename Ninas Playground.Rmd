@@ -7,22 +7,124 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+###USED PACKAGES!!!###
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+install.packages("formattable")
+install.packages("knitr")
+install.packages("ggplot2")
+install.packages("dplyr")
+install.packages("nortest")
 ```
 
-## Including Plots
+```{r}
+library(formattable) #see explanation here: https://cran.r-project.org/web/packages/formattable/formattable.pdf
+library(dplyr)
+library(knitr)
+library(ggplot2)
+library(nortest)
+```
+###I.Introduction###
+Moving to a new city on a tight budget is challenging. Especially, a metropolis like London have high rents and a competitive market that makes it difficult to find accommodation at a reasonable price with just the attributes that you are looking for. Sharing economy services like AirBnB have faciliated the search for a nice room rented out by private agent. The rooms and apartments available are furnished for the user to settle right in. But how do you know if the price you are paying for your flat is acutally a fair price? Profit of both hosts and the platform itself have skyrocketed in the past years. Entering profits in 2016, AirBnB has achieved the goal of becoming the biggest player in the market.  It is certain that profit comes from the user that is paying both the fee of the platform and the profit margin of the host out of his own pocket. If you are on a tight budget yourself you want to pick a price that is market average with the attributes important to you. This paper aims at creating a model to forecast the price a user pay will pay per person per night for an AirBnB matching his requirements to faciliate the check whether the price of the apartment is indeed the fair price. 
 
-You can also embed plots, for example:
+[see bla bla]
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+###III. Descriptive Statistics###
+
+##1. Price##
+The most important variable of the analysis is price. In order to make the data for the different ads comparable, the price is calculated as price per night per person, using the variable 'guests included'. Starting at a minum of \$8 and ending at a maximum of \$590 per night per person the price has a wide distribution around it's mean of \$50 with a standard diviation of \$26. In the density plot below, it becomes apparent that a normal distribution of the price is unlikely. Upon testing the hypothesis with the commonly used Anderson-Darling normality test this theory is approved.
+```{r}
+#This code creates a nice looking table! Just change the name and content of the columns! I left the structure this way for tables with more than one row!
+descriptives_price <- data.frame(
+                 Name=c("Price per Person"),
+                 Minimum=c(min(data_short$price_pp)),
+                 Maximum=c(max(data_short$price_pp)),
+                 Standard_Diviation=c(round(sd(data_short$price_pp))),
+                 Mean=c(round(mean(data_short$price_pp))))
+
+formattable(descriptives_price, list(
+  Name=formatter(
+    "span",
+    style = x ~ ifelse(x == "Overall", 
+                       style(font.weight = "bold"), NA))))
+
+#This code plots the price - I filtered it for price <150 and added a horizontal line at the mean
+data_short %>%
+  filter(price <= 150) %>%
+  ggplot(aes(x = price_pp)) + 
+  geom_density() +
+  labs(x = "PRICE PER PERSON", y = "DENSITY") + 
+  theme_minimal() +
+  geom_vline(xintercept = 27, col = "red")
+
+#Our data is not (!) normally distributed. Be aware while testing. 
+#Refer to https://www.isixsigma.com/tools-templates/normality/dealing-non-normal-data-strategies-and-tools/ for further information and use the right tools!
+ad.test(data_short$price)
+
+#This code cuts the variable price so we can plot it better for later analysis:
+data_short$price_cut<-cut(data_short$price_pp, seq(0, 150, 10), labels = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", "101-110", "111-120", "121-130", "131-140", "141-150"))
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# 2. Rating##
+
+Additionally to the written reviews, guests can give their hosts star-ratings on the following parameters: Overall experience, accuracy, cleanliness, communication, check in, location and value. Overall experience relates to the general impression of the guest and is only calculated for ads with at least three reviews. Accuracy asks how well the ad represented the real properties of the apartment. Cleanliness accounts for tidyness of the flat. Check in and communication both are service-based: Was communication with the host before and during the stay sufficient and was the check in process smooth or difficult? The location is evaluated based on security, comfort and attractiveness of the neighbourhood. Finally, value is a subjective measure to define whether the guests believe that the apartment is worth the price paid - an interesting measure for our analysis. 
+[see @AirBnB Inc., How do star ratings work?, https://de.airbnb.com/help/article/1257/how-do-star-ratings-work]
+
+While the guest gives his ratings on a one-to-five-star scale, the data set transforms this data to a rating from 1 to 10, for the overall rating from 0 to 100. In the table below, the average of reviews is very high: At either 9 or 10 for the subrating scores and at 92 for the overall score. Reviews start at values 2 or 4 for the subcategories and 20 for the overall rating. This means, that ads with good ratings are overrepresented suggesting ads with bad reviews will be unlikely to be booked and, therefore, removed from the website. {search for academic paper to prove statement!} As the overall score is individually picked, different subcategories have different effects on the overall rating. Overall score is only moderately correlated to location, communication and cleanliness. Accuracy, check in and value are strongly correlated to the points received in overall rating. Transferring these findings to the analysis implies a higher impact of those  variables on the model and shows the necessity to analyse both subcategories and overall rating score as they are given independently. The relation between the different rating scores and price is relatively weak. For none of the categories there is even a weak correlation to price. 
+
+[see bla bla]
+
+```{r}
+#This code creates a nice looking table! Just change the name and content of the columns!
+descriptives_rating <- data.frame(
+                 Name=c("Accuracy", "Check In", "Cleanliness", 
+                        "Communication", "Location", "Value", "Overall"),
+                 
+                 Minimum=c(min(data_short$review_scores_accuracy), 
+                           min(data_short$review_scores_checkin),
+                           min(data_short$review_scores_cleanliness),
+                           min(data_short$review_scores_communication),
+                           min(data_short$review_scores_location), 
+                           min(data_short$review_scores_value), 
+                           min(data_short$review_scores_rating)),
+                 
+                 Maximum=c(max(data_short$review_scores_accuracy), 
+                           max(data_short$review_scores_checkin),
+                           max(data_short$review_scores_cleanliness), 
+                           max(data_short$review_scores_communication), 
+                           max(data_short$review_scores_location), 
+                           max(data_short$review_scores_value),
+                           max(data_short$review_scores_rating)), 
+                 
+                 Mean=c(round(mean(data_short$review_scores_accuracy)),
+                        round(mean(data_short$review_scores_checkin)), 
+                        round(mean(data_short$review_scores_cleanliness)),
+                        round(mean(data_short$review_scores_communication)), 
+                        round(mean(data_short$review_scores_location)), 
+                        round(mean(data_short$review_scores_value)),
+                        round(mean(data_short$review_scores_rating))),
+                 
+                 Correlation_Rating=c(round(cor(data_short$review_scores_rating, data_short$review_scores_accuracy, 
+                                                use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_cleanliness, use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_checkin, use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_communication, use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_location, use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_value, use = "complete.obs"),2),
+                               1),
+                 
+                 Correlation_Price=c(round(cor(data_short$price_pp, data_short$review_scores_accuracy, use = "complete.obs"),2),
+                               round(cor(data_short$price_pp, data_short$review_scores_cleanliness, use = "complete.obs"),2),
+                               round(cor(data_short$price_pp, data_short$review_scores_checkin, use = "complete.obs"),2),
+                               round(cor(data_short$price_pp, data_short$review_scores_communication, use = "complete.obs"),2),
+                               round(cor(data_short$price_pp, data_short$review_scores_location, use = "complete.obs"),2),
+                               round(cor(data_short$price_pp, data_short$review_scores_value, use = "complete.obs"),2),
+                               round(cor(data_short$price_pp, data_short$review_scores_rating, use = "complete.obs"),2)))
+
+formattable(descriptives_rating, list(
+  Name=formatter(
+    "span",
+    style = x ~ ifelse(x == "Overall", 
+                       style(font.weight = "bold"), NA))))
+```
