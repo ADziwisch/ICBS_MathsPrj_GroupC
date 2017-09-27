@@ -11,4 +11,4 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Sandbox for playing around
 
-Afterwards put interesting stupp in final_report.Rmd
+Afterwards put interesting stuff in final_report.Rmd
