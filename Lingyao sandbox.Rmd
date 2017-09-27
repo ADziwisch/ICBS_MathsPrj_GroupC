@@ -1,0 +1,16 @@
+---
+title: "For_now"
+author: "Lingyao"
+date: "2017/9/27"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+Assume that we are a bunch of students preparing for our post-graduation trip, with limited budget, we want to find a cost-efficient accommodation in London. But this is not easy, we want to analyse possible attributes that may affect the price and how exactly they work, by studying the Airbnb dataset. Hence, we picked several factors that we think have the most significant impact intuitively and see if there is any correlation. 
+
