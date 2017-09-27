@@ -1,0 +1,14 @@
+---
+title: "jingyin_test"
+author: "Jingyin"
+date: "September 27, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Test
+
+This is where I will do my analysis and I will put the interesting stuff in Final_report.Rmd
