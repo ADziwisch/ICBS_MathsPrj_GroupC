@@ -1,6 +1,6 @@
 ---
 title: "Final report"
-author: "Petr Perina, Nina Hauser, Lingyao Li, Alexander Dziwisch, ChingChi Chen"
+author: "Petr Perina, Nina Hauser, Lingyao Li, Alexander Dziwisch, ChingChi Chen, Jingyin Qiu"
 date: "September 26, 2017"
 output:
   pdf_document: default
