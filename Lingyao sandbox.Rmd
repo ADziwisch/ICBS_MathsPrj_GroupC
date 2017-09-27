@@ -14,3 +14,97 @@ knitr::opts_chunk$set(echo = TRUE)
 # Introduction
 Assume that we are a bunch of students preparing for our post-graduation trip, with limited budget, we want to find a cost-efficient accommodation in London. But this is not easy, we want to analyse possible attributes that may affect the price and how exactly they work, by studying the Airbnb dataset. Hence, we picked several factors that we think have the most significant impact intuitively and see if there is any correlation. 
 
+
+```{r include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(rgdal)
+# install.packages("broom")
+load("data_short.RData")
+data <- tbl_df(data)
+```
+
+Change factors to numeric
+```{r}
+instant_bookable_n <-as.numeric(data_short$instant_bookable)
+cancellation_policy_n <-as.numeric(data_short$cancellation_policy)
+number_of_reviews_n <- as.numeric(data_short$number_of_reviews)
+```
+
+# Analysis on cleaning_fee
+If we cap floor the data and remain 95% of them, we can see that there exists a pattern that with higher cleaning fee, prices also becomes higher. From the plot, there is not very linear relation between them, while its p value suggests otherwise and its coefficient of determination is relatively high (considering that we have 95 variables in total). 
+
+# instant_bookable
+```{r}
+summary(data_short$price_pp)
+class(instant_bookable_n)
+```
+
+```{r}
+reviews_main <- pmin(number_of_reviews_n, 83)
+summary(reviews_main)
+```
+
+```{r}
+ggplot(data_short, aes(x = instant_bookable, y = price_pp)) + geom_boxplot()
+```
+
+```{r}
+quantile(data_short$price_pp, prob = seq(0, 1, 0.05), 'na.rm' = TRUE)
+```
+
+```{r}
+instant_bookable_filt <- data_short %>% select(instant_bookable, price_pp)
+instant_bookable_filt <- data_short %>% filter(price_pp <= 50)
+ggplot(instant_bookable_filt, aes(x = instant_bookable, y = price_pp)) + geom_boxplot()
+```
+
+
+
+```{r}
+lm(formula = price_pp ~ instant_bookable_n, data = data_short)
+summary(lm(price_pp ~ instant_bookable_n, data = data_short))
+```
+
+
+# cancellation_policy
+
+```{r}
+summary(data_short$cancellation_policy)
+ggplot(data_short, aes(x = cancellation_policy, y=price_pp)) + geom_boxplot()
+```
+
+```{r}
+cancellation_policy_filt <- data_short %>% select(cancellation_policy, price_pp)
+cancellation_policy_filt <- data_short %>% filter(price_pp <= 50)
+ggplot(cancellation_policy_filt, aes(x = cancellation_policy, y = price_pp)) + geom_boxplot()
+```
+
+```{r}
+lm(formula = price_pp ~ cancellation_policy, data = data_short)
+summary(lm(price_pp ~ cancellation_policy, data = data_short))
+```
+
+
+# number_of_reviews
+
+```{r}
+quantile(number_of_reviews_n, prob = seq(0, 1, 0.05), 'na.rm' = TRUE)
+```
+
+```{r}
+number_of_reviews_main <- pmin(number_of_reviews_n, 83)
+summary(number_of_reviews_main)
+```
+
+```{r}
+ggplot(data_short, aes(x = number_of_reviews_main, y = price_pp)) + geom_point() + geom_smooth()
+```
+
+```{r}
+lm(formula = price_pp ~ reviews_main, data = data_short)
+summary(lm(price_pp ~ reviews_main, data = data_short))
+```
+If we cap floor the data and remain 95% of them, we can see that there exists a pattern that with higher cleaning fee, prices also becomes higher. From the plot, there is not very linear relation between them, while its p value suggests otherwise and its coefficient of determination is relatively high (considering that we have 95 variables in total). 
+Although we have ignored the tail, its R^2 remains relatively low. I suggeat that we can keep it as an alternative.
