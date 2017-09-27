@@ -1,6 +1,6 @@
 ---
 title: "Final report"
-author: "Petr Perina, Nina Hauser - Test2, Lingyao Li"
+author: "Petr Perina, Nina Hauser, Lingyao Li"
 date: "September 26, 2017"
 output:
   pdf_document: default
