@@ -1,0 +1,14 @@
+---
+title: "Petr's sandbox"
+author: "Petr Perina"
+date: "September 27, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Sandbox for playing around
+
+Afterwards put interesting stupp in final_report.Rmd
