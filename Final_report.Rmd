@@ -1,10 +1,14 @@
 ---
 title: "Final report"
 <<<<<<< HEAD
+<<<<<<< HEAD
 author: "Petr Perina, Nina Hauser, Lingyao Li"
 =======
 author: "Petr Perina, Nina Hauser, Lingyao Li, Alexander Dziwisch, ChingChi Chen"
 >>>>>>> bb0154818f7267f2ed1cb576ed0428cbda93c3f8
+=======
+author: "Petr Perina, Nina Hauser, Lingyao Li, Alexander Dziwisch, ChingChi Chen, Jingyin Qiu"
+>>>>>>> 461a4dc218538f3a9a0a2edc733f8e334292ae89
 date: "September 26, 2017"
 output:
   pdf_document: default
