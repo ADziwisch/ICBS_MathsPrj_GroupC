@@ -1,0 +1,18 @@
+---
+title: "Ching’s RMD"
+author: "Ching"
+date: "September 27, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Test
+
+This is for test. 
+
+## MY Sandbox
+
+This is where I do analysis
