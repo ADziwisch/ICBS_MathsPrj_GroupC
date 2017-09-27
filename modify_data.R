@@ -67,13 +67,16 @@ data_short$amenities_count <- count_list
 
 ## Filter the data
 
-data_short <- data_short %>% filter(price_pp <= 100)
-data_short <- data_short %>% filter(number_of_reviews > 3)
-data_short <- data_short %>% filter(is_location_exact == "t")
-data_short <- data_short %>% filter(!is.na(review_scores_accuracy))
-data_short <- data_short %>% filter(cancellation_policy == "flexible" | cancellation_policy == "moderate" | cancellation_policy == "strict")
-data_short <- data_short %>% filter(!is.na(bathrooms))
-data_short <- data_short %>% filter(!is.na(bedrooms))
-data_short <- data_short %>% filter(!is.na(beds))
+# data_short <- data_short %>% filter(price_pp <= 100)
+# data_short <- data_short %>% filter(number_of_reviews > 3)
+# data_short <- data_short %>% filter(is_location_exact == "t")
+# data_short <- data_short %>% filter(!is.na(review_scores_accuracy))
+# data_short <- data_short %>% filter(cancellation_policy == "flexible" | cancellation_policy == "moderate" | cancellation_policy == "strict")
+# data_short <- data_short %>% filter(!is.na(bathrooms))
+# data_short <- data_short %>% filter(!is.na(bedrooms))
+# data_short <- data_short %>% filter(!is.na(beds))
+
+data_short <- filter(data_short, data_short$number_of_reviews >= 3 & data_short$property_type == "Apartment" & data_short$room_type == "Private room")
+data_short <- na.omit(data_filt)
 
 save(data_short, file = "data_short.RData")
