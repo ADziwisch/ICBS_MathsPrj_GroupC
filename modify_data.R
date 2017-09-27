@@ -75,5 +75,11 @@ data_short$amenities_count <- count_list
 # data_short <- data_short %>% filter(!is.na(bathrooms))
 # data_short <- data_short %>% filter(!is.na(bedrooms))
 # data_short <- data_short %>% filter(!is.na(beds))
+<<<<<<< HEAD
+=======
+
+data_short <- filter(data_short, data_short$number_of_reviews >= 3 & data_short$property_type == "Apartment" & data_short$room_type == "Private room")
+data_short <- na.omit(data_filt)
+>>>>>>> afc0b8452054239ca2ff0e8ae71d757695f9d9af
 
 save(data_short, file = "data_short.RData")
