@@ -11,9 +11,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Introduction
-Assume that we are a bunch of students preparing for our post-graduation trip, with limited budget, we want to find a cost-efficient accommodation in London. But this is not easy, we want to analyse possible attributes that may affect the price and how exactly they work, by studying the Airbnb dataset. Hence, we picked several factors that we think have the most significant impact intuitively and see if there is any correlation. 
-
 
 ```{r include=FALSE}
 library(ggplot2)
@@ -25,11 +22,19 @@ load("data_short.RData")
 data <- tbl_df(data)
 ```
 
+In this part, we are going to analyse attributes of the ad, including whether it is instant bookable and cancellation policy. 
+
 Change factors to numeric
 ```{r}
 instant_bookable_n <-as.numeric(data_short$instant_bookable)
 cancellation_policy_n <-as.numeric(data_short$cancellation_policy)
 number_of_reviews_n <- as.numeric(data_short$number_of_reviews)
+```
+
+It is very common that estimators are highly sensitive to outliers. To make our variables more comparable, we are going to cap floor the data for dependent variable price_pp, discarde extreme values and remain 95% of the data. 
+
+```{r}
+quantile(data_short$price_pp, prob = seq(0, 1, 0.05), 'na.rm' = TRUE)
 ```
 
 # Analysis on cleaning_fee
@@ -38,21 +43,14 @@ If we cap floor the data and remain 95% of them, we can see that there exists a 
 # instant_bookable
 ```{r}
 summary(data_short$price_pp)
-class(instant_bookable_n)
 ```
 
-```{r}
-reviews_main <- pmin(number_of_reviews_n, 83)
-summary(reviews_main)
-```
 
 ```{r}
 ggplot(data_short, aes(x = instant_bookable, y = price_pp)) + geom_boxplot()
 ```
 
-```{r}
-quantile(data_short$price_pp, prob = seq(0, 1, 0.05), 'na.rm' = TRUE)
-```
+
 
 ```{r}
 instant_bookable_filt <- data_short %>% select(instant_bookable, price_pp)
@@ -99,7 +97,9 @@ summary(number_of_reviews_main)
 ```
 
 ```{r}
-ggplot(data_short, aes(x = number_of_reviews_main, y = price_pp)) + geom_point() + geom_smooth()
+number_of_reviews_filt <- data_short %>% select(number_of_reviews_n, price_pp)
+number_of_reviews_filt <- data_short %>% filter(price_pp <= 50)
+ggplot(data_short, aes(y = data_short$number_of_reviews_main, x = number_of_reviews_filt$price_pp)) + geom_point() + geom_smooth()
 ```
 
 ```{r}
