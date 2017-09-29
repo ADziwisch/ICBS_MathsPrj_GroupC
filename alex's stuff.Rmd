@@ -19,13 +19,15 @@ lnd_f <- broom::tidy(lnd)
 ```
 ```{r}
 
-data_shorter <- data_short %>% filter(price_pp <= 50)
+data_shorter <- data_short %>% filter(price_pp <= 75)
+
+data_shorter <- data_shorter %>% arrange(price_pp)
 
 map <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_shorter, aes(east, north, color = price_pp), alpha = 0.5, size = 1) +
   labs(x = 'Easting', y = 'Northing') +
-  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = terrain.colors(50))
+  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = terrain.colors(60))
 
 
 map
