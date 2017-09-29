@@ -51,6 +51,9 @@ data_short %>% filter(distance < 18, price_pp<150) %>%
 
 ```{r}
 toupper(Price_rent_0927$zipcode)
+```
+
+```{r}
 Price_rent_cat <-
   Price_rent_0927 %>% 
   group_by(zipcode) %>% 
@@ -58,8 +61,10 @@ Price_rent_cat <-
   mutate(rank_rent = rank(desc(avg_rent))) %>% 
   arrange(rank_rent)
 
-for (i in range(length(Price_rent_cat$zipcode))) {
-  if Price_rent_cat[i,rank_rent] < 213*0.3 {
-    Price_rent_cat[i,rank_cat <- "tier1"]
-  }
-}
+a <- nrow(Price_rent_cat) * 1/4
+b <- nrow(Price_rent_cat) * 2/4
+c <- nrow(Price_rent_cat) * 3/4
+
+
+Price_rent_cat <- Price_rent_cat %>% mutate( tier = ifelse(rank_rent %in% c(1:a), "tier1", "no"))
+```
