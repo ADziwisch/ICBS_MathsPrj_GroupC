@@ -13,3 +13,53 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This is where I will do my analysis and I will put the interesting stuff in Final_report.Rmd
 hahhahah  hope it work
+
+```{r}
+library(ggplot2)
+```
+
+
+###Descriptive Statistics ###
+
+## 3. location (distance to westminister center)
+
+```{r}
+ggplot(data_short, aes(distance)) + 
+  geom_density() +
+  theme_minimal() +
+  geom_vline(xintercept = mean(data_short$distance), col = "red")
+summary(data_short$distance)
+quantile(data_short$distance, c(.95))
+
+```
+
+exploration with distance
+```{r}
+#price_filt <- data_short %>% filter(price_pp <100 )
+data_short$price_cut<-cut(data_short$price_pp, seq(0, 150, 10), labels = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", "101-110", "111-120", "121-130", "131-140", "141-150"))
+
+#filter the distance < 18.08827, (95%) and price_pp <150
+data_short %>% filter(distance < 18, price_pp<150) %>%
+  ggplot(aes(distance)) + geom_density()
+
+data_short$distance_cut<- cut(data_short$distance, seq(0, 18, 1), labels = c("0-1", "1-2", "2-3", "3-4","4-5","5-6","6-7","7-8","8-9","9-10","10-11","11-12","12-13","13-14","14-15","15-16","16-17","17-18"))
+data_short %>% filter(distance < 18, price_pp<150) %>%
+  ggplot(aes(x = distance_cut, y = price_pp)) + 
+  geom_boxplot() 
+```
+
+
+```{r}
+toupper(Price_rent_0927$zipcode)
+Price_rent_cat <-
+  Price_rent_0927 %>% 
+  group_by(zipcode) %>% 
+  summarise(avg_rent = mean(rent)) %>% 
+  mutate(rank_rent = rank(desc(avg_rent))) %>% 
+  arrange(rank_rent)
+
+for (i in range(length(Price_rent_cat$zipcode))) {
+  if Price_rent_cat[i,rank_rent] < 213*0.3 {
+    Price_rent_cat[i,rank_cat <- "tier1"]
+  }
+}
