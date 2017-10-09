@@ -3,7 +3,8 @@ m1 <- lm(log(price_pp) ~ log(mean_rent) +
                           review_scores_rating +
                           review_scores_cleanliness +
                           review_scores_location +
-                          review_scores_value + beds +
+                          review_scores_value +
+                          beds +
                           `amen_Family/kid_friendly` +
                           amen_TV +
                           amen_Elevator_in_building +
