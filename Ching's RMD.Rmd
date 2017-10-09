@@ -10,14 +10,18 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+library(dplyr)
+library(ggplot2)
 amen<-select(data_short,contains("amen_"))
 amen_name<-colnames(amen)
-number<-colSums(amen[, (1:53)], na.rm=TRUE)/53844
+number<-colMeans(amen[, (1:53)], na.rm=TRUE)
 data<-as.data.frame(amen_name)
 data$number=number
-data_remove_amen<-data[c(-44,-6,-7),]
-arrange(data_remove_amen,desc(number))
+data1<-data[,c(-44,-6,-7,-29,-39,-43)]
+
 ```
+
+data1<-data[,c(-44,-6,-7,-29,-39,-43)]
 
 #Amenity
 In AirBnB, landlords offer different amenities for the tenants, including Wifi, kitchen, washer, even shampoo, and etc, and those facilities will be showed in the webpages for tenants’ references. Out of 53,844 offerings of rooms in London, internet connections are the most important elements in room. There are 95% of the rooms offering Wifi and internet connection. Besides, some general amenities for houses such as heating facilities (93%), kitchens (91%), essentials (83%), washers (83%), TV (67%), hangers (60%), Iron (59%), and shampoo (57%), will often be provided in houses/rooms. However, in London, most of the offerings don’t allow their customers to smoke and to brings their pets with them.  77% of rooms are with smoke detectors, and less than 10% of rooms are smoking allowed and pets allowed. Due to the weather in London, air-con facility seems not important, but this will be a must in most of the Asian countries. 
@@ -28,7 +32,7 @@ ggplot(data_remove_amen,aes(x =reorder(amen_name, -number),y=number))+geom_col()
 
 # Amenity doesn’t significant affected the numbers of reviews and rating, even price 
 
-To discover the importance of amenities, we choose 47 variables of amenities to test the relationship to score of rating (1 to 100), and score of value (1 to 10). (We deleted some of the missing variables and some inappropriate variables. For example, no records show in variable “Cat(s)” or “Dogs(s)”.) The main finding is that the amenities may not explain the variation of the rating scores and the values for customers and even price. Adjust R-square for both factors are only 0.04 to 0.1. However, we can still find the correlations between those amenities variables and rating/value from customers. Some of the interesting finding may be the offering of kitchens and safety-related amenities such as fire-extinguishers, lock of the bedroom or safety cards seems negatively impact on the overall rating and perceived value of rooms, and the family-and-kid-friendly environment is also negative to the value of room. The reason may be that the inconvenience of those safety amenities outweighs the safety and it also charge higher. The family-and-kid-friendly environment may also indicated a noisy and messy environment, which is also significantly negative to score of cleanliness and has a negative impact on price. 
+To discover the importance of amenities, we choose 47 variables of amenities to test the relationship to score of rating (1 to 100), and score of value (1 to 10). (We deleted some of the missing variables and some inappropriate variables. For example, no records show in variable “Cat(s)” or “Dogs(s)”.) The main finding is that the amenities may not explain the variation of the rating scores and the values for customers and even price. Adjust R-square for both factors are only 0.04 to 0.1. However, we can still find the correlations between those amenities variables and rating/value from customers. Some of the interesting findings may be the offering of kitchens and safety-related amenities such as fire-extinguishers, lock of the bedroom or safety cards seems negatively impact on the overall rating and perceived value of rooms, and the family-and-kid-friendly environment is also negative to the value of room. The reason may be that the inconvenience of those safety amenities outweighs the safety and it also charge higher. The family-and-kid-friendly environment may also indicated a noisy and messy environment, which is also significantly negative to score of cleanliness and has a negative impact on price. 
 
 
 
