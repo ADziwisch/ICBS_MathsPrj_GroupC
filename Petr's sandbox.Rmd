@@ -8,7 +8,27 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+## Limitations of our model
 
-## Sandbox for playing around
+Due to the scope of this assignment we were not able to address every issue with our data. Several issues and will be discussed here.
 
-Afterwards put interesting stuff in final_report.Rmd
+### Omitted variable bias
+The price of an AirBnB is affected by a large number of factors. We built a model that includes some of them, but it was not feasible to include data concerning every single possible determinant. As a result, our model likely suffers from omitted variable bias. It under- or overestimates the effect of some of the existing factors to compensate for the missing information, making our model less reliable. Our dataset doesn't contain several important variables, such as the size of the room, the proximity of the flat to a tube station, the age of the flat or the quality of the equipment and furniture in the flat.
+
+### Multicollinearity
+Some of the independent variables in our model are also correlated. For example, consider the correlation of the review score for location and the distance from the city center. 
+```{r}
+cor(data_short$amen_Washer, data_short$amen_Dryer)
+```
+
+Those variables provide similar information to the model and as a result, the standard error of our coefficients is inflated. This also intuitively makes sense as many washers can be used for drying.
+
+### Heteroscedasticity
+
+
+
+Multicollinearity -> higher error terms
+Omitted variable bias (provide examples)
+Is our data homoskedastic? Check that the variance of prices is the same across different levels of independent variables
+
+

@@ -11,11 +11,8 @@ output:
     includes:
       before_body: doc_prefix.html
       after_body: doc_end.html
+bibliography: bibliography.bib
 ---
-
-
-
-
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
 
@@ -32,23 +29,30 @@ load("data_short.RData")
 
 # Description of the dataset
 
+The dataset for this investigation was taken from the website "Inside Airbnb - Adding data to the debate" [@Cox_2017]. This in an independent and non-commercial project aimed to examine the effect of Airbnb listings on urban development. The initial dataset contained data, was scraped from Airbnb on the 4th and 5th of March 2017. It contained 95 variables and 53.904 objects.
+
+To use the dataset for this project, some adjustments and additions had to be made.
+
+
+
+# Mapping
 
 ```{r echo=FALSE}
 
 lnd <- readOGR(dsn = "map_data", layer = "london_sport")
 lnd_f <- broom::tidy(lnd)
 
-data_shorter <- data_short %>% filter(price_pp <= 75)
 
-data_shorter <- data_shorter %>% arrange(price_pp)
+#data_short <- data_short %>% arrange(log10(price_pp))
 
 map <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
-  geom_point(data = data_shorter, aes(east, north, color = price_pp), alpha = 0.5, size = 1) +
+  geom_point(data = data_short, aes(east, north, color = log10(price_pp)), alpha = 0.5, size = 1) +
   labs(x = 'Easting', y = 'Northing') +
-  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = terrain.colors(60))
+  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4))
 
 map
 
 ```
 
+# Bibliography
