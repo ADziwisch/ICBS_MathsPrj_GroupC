@@ -15,74 +15,55 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r include=FALSE}
 library(ggplot2)
 library(dplyr)
-library(gridExtra)
-library(rgdal)
-# install.packages("broom")
 load("data_short.RData")
-data <- tbl_df(data)
 ```
 
 In this part, we are going to analyse attributes of the ad. We choose 2 variables that we think may influence price_pp intuitively, which includes whether it is instant bookable and cancellation policy. 
 
-```{r}
-summary(data_short$price_pp)
-quantile(data_short$price_pp, prob = seq(0, 1, 0.95), 'na.rm' = TRUE)
-```
-
-It is very common that estimators are highly sensitive to outliers. To make our variables more comparable, we are going to cap floor the data for dependent variable price_pp, discarde extreme values and remain 95% of the data. 
-
-```{r}
-ad_data <- data_short %>% select(instant_bookable, cancellation_policy, number_of_reviews, price_pp)
-ad_data <- ad_data %>% filter(price_pp <= 50)
-```
-
-Change factors to numeric
-```{r}
-ad_data <- mutate(ad_data, instant_bookable_n = as.numeric(ad_data$instant_bookable))
-ad_data <- mutate(ad_data, cancellation_policy_n = as.numeric(ad_data$cancellation_policy))
-ad_data <- mutate(ad_data, number_of_reviews_n = as.numeric(ad_data$number_of_reviews))
-```
-
 # instant_bookable
-
-In terms of instant_bookable, there are 2 kinds of accommodation. In our dataset, t means you can book it instantly after you pay the rent, while f means you have to wait until the host to check your profile and approve your book request. 
-
-```{r}
-summary(ad_data$instant_bookable)
-cor.test(ad_data$instant_bookable_n, ad_data$price_pp)
-```
+To attract more customers, sometimes hosts allow instant book of their properties. In terms of instant book, there are 2 kinds of accommodation. In our dataset, TRUE means guests can book the desired property instantly, while FALSE means they have to discuss their plans with the host and wait for approval before they can book. 
 
 ```{r}
-ggplot(ad_data, aes(x = instant_bookable, y = price_pp)) + geom_boxplot()
+summary(data_short$instant_bookable)
+cor.test(as.numeric(data_short$instant_bookable), 
+         data_short$price_pp)
+ggplot(data = data_short, aes(x = instant_bookable, y = price_pp)) + geom_boxplot() + labs(x = "Instant Bookable", y = "Price Per Person") 
+t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_pp"], 
+       data_short[data_short[, "instant_bookable"]  == "FALSE", "price_pp"])
 ```
-It is interesting that only about 26.5% of hosts allow instant booking.
-From the Pearson's product-moment correlation test, its low correlation shows there is not very linear relation between instant bookability and price pp, while its p value suggests otherwise. If we look at the boxplot, we can see that there exists a pattern that in general price_pp is higher if the accommodation cannot be booked instantly. The resut does make sense in practice. Under the circumstances where the rent is relatively high, hosts are more likely not to implement instant-booking policy in order to protect their property.
+Despite the fact that instant book will make the booking process more convient for both hosts and guests, there are only about 26.5% of hosts adopt it.  
+From the Pearson's product-moment correlation test, its relatively low correlation shows there is not very linear relation between instant bookability and price pp, while the t-test for means suggests otherwise. If we look at the boxplot, we can see that in general price_pp is higher if the accommodation cannot be booked instantly. The resut does make sense in practice. Under the circumstances where the rent is relatively high, hosts are more likely not to implement instant-book policy in order to protect their property.
 
 # cancellation_policy
 
-In addition to instant bookability, hosts also have the right to choose their own cancellation policy. Cancellation policy decides whether or not guests can get refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get full refund if the reservation is cancelled within limited period, mostly 24 hours prior to the check in. If moderate, fees are fully refundable but within a longer time period. Under the circumstances of strict policy, only 50% of fees may be refunded until 1 week prior to check in. 
+In addition to instant book, hosts also have the right to choose their own cancellation policy. Cancellation policy decides whether or not guests can get refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get full refund if the reservation is cancelled within limited period, mostly 24 hours prior to the check in. If moderate, fees are fully refundable but within a longer time period. Under the circumstances of strict policy, only 50% of fees may be refunded until 1 week prior to check in. 
 (reference and citation may be needed here, url: https://www.airbnb.co.uk/home/cancellation_policies#strict)
 
 ```{r}
-summary(ad_data$cancellation_policy)
-cor.test(ad_data$cancellation_policy_n, ad_data$price_pp)
+summary(data_short$cancellation_policy)
+cor.test(as.numeric(data_short$cancellation_policy),
+         data_short$price_pp)
+ggplot(data_short, aes(x = cancellation_policy, y=price_pp)) + geom_boxplot() + labs(x = "Cancellation Policy", y = "Price Per Person") 
 ```
 
-```{r}
-summary(ad_data$cancellation_policy)
-ggplot(ad_data, aes(x = cancellation_policy, y=price_pp)) + geom_boxplot()
-```
-Surprisingly, there is only minor difference among different cancellaiotn policies.
+Surprisingly, accommondations with strict cancellation policy in general have lower price than others. One possible reason might be that with strict policy, hosts' profits are more secure so that they 
 
 Now we want to analyse if there is any correlation between these 2 variables.
 
 ```{r}
-cor.test(ad_data$instant_bookable_n, ad_data$cancellation_policy_n)
+cor.test(as.numeric(data_short$instant_bookable), as.numeric(data_short$cancellation_policy))
+ggplot(data = data_short, aes(x = cancellation_policy, fill = instant_bookable)) + geom_bar(position = "dodge") + labs(x = "Cancellation Policy", y = "Count") 
 ```
+As we can see, a larger propotion of apartments with srict cancellation policy are instant bookable, compared with those with other cancellation policies. 
+
+
+# beds
+The variable beds describes how many deds are available for guests. With more beds available, the price of an accommodation should be higher when setting other parameters equal, if we think about it intuitively. But how exactly does the number of beds influence the price?
 
 ```{r}
-ggplot(data = ad_data, aes(x = cancellation_policy, fill = instant_bookable)) + geom_bar(position = "fill")
-ggplot(data = ad_data) + geom_bar(aes(x = cancellation_policy)) + facet_wrap(~instant_bookable)
-ggplot(data = ad_data) + geom_boxplot(aes(x = cancellation_policy, y= price_pp)) + facet_wrap(~instant_bookable)
+summary(data_short$beds)
+cor.test(data_short$beds, data_short$price)
+ggplot(data_short, aes(x = beds)) + geom_bar() + labs(x = "The Number of Beds", y = "Count") 
+ggplot(data_short, aes(x = as.factor(beds), y = price)) + geom_boxplot() + labs(x = "The Number of Beds", y = "Price") 
 ```
-(Nothing's interesting here)
+With most of the accommondations having less than three beds, we can still observe a clear positive relation between the number of beds and price, which matches our expectation. In general, the more beds there are, the higher the price is. 
