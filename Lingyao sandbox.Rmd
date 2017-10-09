@@ -55,12 +55,13 @@ cor.test(ad_data$instant_bookable_n, ad_data$price_pp)
 ```{r}
 ggplot(ad_data, aes(x = instant_bookable, y = price_pp)) + geom_boxplot()
 ```
-
+It is interesting that only about 26.5% of hosts choose to 
 From the Pearson's product-moment correlation test, its low correlation shows there is not very linear relation between instant bookability and price pp, while its p value suggests otherwise. If we look at the boxplot, we can see that there exists a pattern that in general price_pp is higher if the accommodation cannot be booked instantly. The resut does make sense in practice. Under the circumstances where the rent is relatively high, hosts are more likely not to implement instant-booking policy in order to protect their property.
 
 # cancellation_policy
 
 In addition to instant bookability, hosts also have the right to choose their own cancellation policy. Cancellation policy decides whether or not guests can get refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get full refund if the reservation is cancelled within limited period, mostly 24 hours prior to the check in. If moderate, fees are fully refundable but within a longer time period. Under the circumstances of strict policy, only 50% of fees may be refunded until 1 week prior to check in. 
+(reference and citation may be needed here, url: https://www.airbnb.co.uk/home/cancellation_policies#strict)
 
 ```{r}
 summary(ad_data$cancellation_policy)
@@ -84,4 +85,4 @@ ggplot(data = ad_data, aes(x = cancellation_policy, fill = instant_bookable)) + 
 ggplot(data = ad_data) + geom_bar(aes(x = cancellation_policy)) + facet_wrap(~instant_bookable)
 ggplot(data = ad_data) + geom_boxplot(aes(x = cancellation_policy, y= price_pp)) + facet_wrap(~instant_bookable)
 ```
-
+(Nothing's interesting here)
