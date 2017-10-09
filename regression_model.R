@@ -1,4 +1,4 @@
-m1 <- lm(log(price_pp) ~ log(mean_rent) +
+m1 <- lm(log10(price_pp) ~ log10(mean_rent) +
                           distance +
                           review_scores_rating +
                           review_scores_cleanliness +
