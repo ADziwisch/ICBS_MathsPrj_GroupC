@@ -1,0 +1,48 @@
+body .main-container{
+  max-width: 100%;
+  padding: 0px !important;
+}
+
+body .shadow{
+  height: 250px;
+  margin-bottom: -250px;
+  background: linear-gradient(141deg, rgba(15, 184, 173, .2), rgba(31, 200, 219, .6), rgba(44, 181, 232, .2));
+}
+
+body .img-holder{
+  background-image: url("pexels-photo-417382.jpeg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 250px;
+  margin-bottom: -250px;
+}
+
+body .main-canvas{
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+body .title, .author{
+  color: white;
+  text-align: center;
+}
+
+body .title{
+  margin-top: 50px;
+}
+
+body #introduction{
+  margin-top: 150px;
+}
+
+body .bottom-box{
+  height: 75px;
+  background: linear-gradient(141deg, rgb(15, 184, 173), rgb(31, 200, 219), rgb(44, 181, 232));
+  text-align: center;
+  color: white;
+  padding-top: 5px;
+}

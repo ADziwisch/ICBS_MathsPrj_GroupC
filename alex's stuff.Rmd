@@ -1,0 +1,54 @@
+---
+title: "Airbnb in London - How much to pay?"
+author: "test"
+output:
+  html_document:
+    number_sections: yes
+    # toc: yes
+    # toc_float: true
+    # toc_depth: 2
+    css: style.css
+    includes:
+      before_body: doc_prefix.html
+      after_body: doc_end.html
+---
+
+
+
+
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(pracma)
+library(sp)
+library(rgdal)
+
+load("data_short.RData")
+```
+
+# Introduction
+
+# Description of the dataset
+
+
+```{r echo=FALSE}
+
+lnd <- readOGR(dsn = "map_data", layer = "london_sport")
+lnd_f <- broom::tidy(lnd)
+
+data_shorter <- data_short %>% filter(price_pp <= 75)
+
+data_shorter <- data_shorter %>% arrange(price_pp)
+
+map <- ggplot() +
+  geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
+  geom_point(data = data_shorter, aes(east, north, color = price_pp), alpha = 0.5, size = 1) +
+  labs(x = 'Easting', y = 'Northing') +
+  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = terrain.colors(60))
+
+map
+
+```
+

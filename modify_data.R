@@ -2,17 +2,24 @@ library(dplyr)
 library(pracma)
 library(stringr)
 
+library(sp)
+library(rgdal)
+
 load("data.RData")
 data <- tbl_df(data)
 
 ## Select columns
 
-data_short <- data %>% select(price, zipcode, latitude, longitude, is_location_exact,
+data_short <- data %>% select(price, zipcode, latitude, longitude,
                               property_type, room_type, accommodates, bathrooms, bedrooms, beds, amenities,
                               number_of_reviews, review_scores_rating, review_scores_accuracy,
                               review_scores_cleanliness, review_scores_checkin, review_scores_communication,
                               review_scores_location, review_scores_value, minimum_nights, instant_bookable,
                               cancellation_policy)
+
+## Initial filter
+
+data_short <- filter(data_short, data_short$number_of_reviews >= 3 & data_short$property_type == "Apartment" & data_short$room_type == "Private room" & data_short$cancellation_policy != "super_strict_30")
 
 ## Mutate price per person
 
@@ -29,14 +36,14 @@ data_short$zip_first <- toupper(data_short$zip_first)
 
 ## Mutate distance from Picadilly Circus
 
-my_haversine <- function(lat, long) {
+my_haversine <- function(long, lat) {
   longlat = c()
   for (i in c(1:length(lat))) {
-    longlat <- append(longlat, haversine(c(lat[i], long[i]), c(51.510067, -0.133869)))
+    longlat <- append(longlat, haversine(c(long[i], lat[i]), c(-0.133869, 51.510067)))
   }
   return(longlat)
 }
-longlatlist <- my_haversine(data_short$latitude, data_short$longitude)
+longlatlist <- my_haversine(data_short$longitude, data_short$latitude)
 data_short$distance <- longlatlist
 
 ## Mutate Amenities Dummy variables
@@ -65,21 +72,34 @@ count_amenities <- function(amenities){
 count_list <- count_amenities(data_short$amenities)
 data_short$amenities_count <- count_list
 
+## Mutating coor data
+
+cord_data <- data.frame(long = data_short$longitude, lat = data_short$latitude)
+cord.dec = SpatialPoints(cbind(cord_data$long, cord_data$lat), proj4string = CRS("+proj=longlat"))
+
+# Setting existing coordinate as lat-long system
+cord.dec = SpatialPoints(cbind(data$long, data$lat), proj4string = CRS("+proj=longlat"))
+
+# Transforming coordinate to UTM using EPSG=32748 for WGS=84, UTM Zone=48M,
+# Southern Hemisphere)
+cord.UTM <- spTransform(cord.dec, CRS("+init=epsg:27700"))
+
+data_short$east <- cord.UTM$coords.x1
+data_short$north <- cord.UTM$coords.x2
+
+## Add rent data 
+
+rent_data <- read.csv("Price_rent_0927.csv")
+rent_data <- rent_data %>% group_by(zip_first = toupper(zipcode)) %>% summarise(n = n(), mean_rent = mean(rent))
+data_short <- merge(data_short, rent_data_short, by="zip_first")
+
+## Rename instant bookable
+
+data_short$instant_bookable <- factor(data_short$instant_bookable, levels = c("t", "f"), labels = c(TRUE, FALSE))
+
 ## Filter the data
 
-# data_short <- data_short %>% filter(price_pp <= 100)
-# data_short <- data_short %>% filter(number_of_reviews > 3)
-# data_short <- data_short %>% filter(is_location_exact == "t")
-# data_short <- data_short %>% filter(!is.na(review_scores_accuracy))
-# data_short <- data_short %>% filter(cancellation_policy == "flexible" | cancellation_policy == "moderate" | cancellation_policy == "strict")
-# data_short <- data_short %>% filter(!is.na(bathrooms))
-# data_short <- data_short %>% filter(!is.na(bedrooms))
-# data_short <- data_short %>% filter(!is.na(beds))
-<<<<<<< HEAD
-=======
-
-data_short <- filter(data_short, data_short$number_of_reviews >= 3 & data_short$property_type == "Apartment" & data_short$room_type == "Private room")
-data_short <- na.omit(data_filt)
->>>>>>> afc0b8452054239ca2ff0e8ae71d757695f9d9af
+data_short <- na.omit(data_short)
+data_short <- data_short %>% filter(price_pp <= 100)
 
 save(data_short, file = "data_short.RData")
