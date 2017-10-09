@@ -10,7 +10,7 @@ data <- tbl_df(data)
 
 ## Select columns
 
-data_short <- data %>% select(price, zipcode, latitude, longitude, is_location_exact,
+data_short <- data %>% select(price, zipcode, latitude, longitude,
                               property_type, room_type, accommodates, bathrooms, bedrooms, beds, amenities,
                               number_of_reviews, review_scores_rating, review_scores_accuracy,
                               review_scores_cleanliness, review_scores_checkin, review_scores_communication,
@@ -19,7 +19,7 @@ data_short <- data %>% select(price, zipcode, latitude, longitude, is_location_e
 
 ## Initial filter
 
-data_short <- filter(data_short, data_short$number_of_reviews >= 3 & data_short$property_type == "Apartment" & data_short$room_type == "Private room")
+data_short <- filter(data_short, data_short$number_of_reviews >= 3 & data_short$property_type == "Apartment" & data_short$room_type == "Private room" & data_short$cancellation_policy != "super_strict_30")
 
 ## Mutate price per person
 
@@ -87,17 +87,19 @@ cord.UTM <- spTransform(cord.dec, CRS("+init=epsg:27700"))
 data_short$east <- cord.UTM$coords.x1
 data_short$north <- cord.UTM$coords.x2
 
+## Add rent data 
+
+rent_data <- read.csv("Price_rent_0927.csv")
+rent_data <- rent_data %>% group_by(zip_first = toupper(zipcode)) %>% summarise(n = n(), mean_rent = mean(rent))
+data_short <- merge(data_short, rent_data_short, by="zip_first")
+
+## Rename instant bookable
+
+data_short$instant_bookable <- factor(data_short$instant_bookable, levels = c("t", "f"), labels = c(TRUE, FALSE))
+
 ## Filter the data
 
-# data_short <- data_short %>% filter(price_pp <= 100)
-# data_short <- data_short %>% filter(number_of_reviews > 3)
-# data_short <- data_short %>% filter(is_location_exact == "t")
-# data_short <- data_short %>% filter(!is.na(review_scores_accuracy))
-# data_short <- data_short %>% filter(cancellation_policy == "flexible" | cancellation_policy == "moderate" | cancellation_policy == "strict")
-# data_short <- data_short %>% filter(!is.na(bathrooms))
-# data_short <- data_short %>% filter(!is.na(bedrooms))
-# data_short <- data_short %>% filter(!is.na(beds))
-
 data_short <- na.omit(data_short)
+data_short <- data_short %>% filter(price_pp <= 100)
 
 save(data_short, file = "data_short.RData")
