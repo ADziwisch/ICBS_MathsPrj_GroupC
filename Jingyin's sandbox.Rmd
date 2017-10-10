@@ -22,7 +22,7 @@ library(stargazer)
 ###Descriptive Statistics ###
 
 #3. Location#
-When choosing an Airbnb in London, people may consider its location since location decides the convenience to travel around or live in London. In our model, we use the distance to city center, Westminster, as an measurement of the Airbnb location. People normally expected that the closer to the city center, the higher the Airbnb rent.
+When choosing an Airbnb in London, people may consider its location since location decides the convenience to travel around or live in London. In our model, we use the distance to city center, Westminster, as a measurement of the Airbnb location. People normally expected that the closer to the city center, the higher the Airbnb rent.
 
 ```{r}
 ggplot(data_short, aes(distance)) + 
