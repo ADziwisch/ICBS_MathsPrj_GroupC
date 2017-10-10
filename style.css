@@ -26,7 +26,7 @@ body .main-canvas{
   padding-right: 30px;
 }
 
-body .title, .author{
+body .title, .author, .date{
   color: white;
   text-align: center;
 }

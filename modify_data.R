@@ -99,7 +99,8 @@ data_short <- na.omit(data_short)
 data_short <- data_short %>% select(price,
                                     zip_first, mean_rent, distance, east, north,
                                     starts_with("review"), number_of_reviews,
-                                    property_type, room_type, accommodates, bathrooms, bedrooms, beds, starts_with("amen"),
+                                    property_type, room_type, accommodates, bathrooms, bedrooms, beds,
+                                    amenities_count, starts_with("amen_"), 
                                     minimum_nights, instant_bookable, cancellation_policy,
                                     price_pp)
 
