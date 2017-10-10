@@ -1,6 +1,7 @@
 ---
 title: "Airbnb in London - How much to pay?"
-author: "test"
+author: "Group C"
+date: "13.10.2017"
 output:
   html_document:
     number_sections: yes
@@ -12,6 +13,7 @@ output:
       before_body: doc_prefix.html
       after_body: doc_end.html
 bibliography: bibliography.bib
+csl: harvard-imperial-college-london.csl
 ---
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
@@ -21,6 +23,7 @@ library(dplyr)
 library(pracma)
 library(sp)
 library(rgdal)
+library(knitr)
 
 load("data_short.RData")
 ```
@@ -29,17 +32,25 @@ load("data_short.RData")
 
 # Description of the dataset
 
-The dataset for this investigation was taken from the website "Inside Airbnb - Adding data to the debate" [@Cox_2017]. This in an independent and non-commercial project aimed to examine the effect of Airbnb listings on urban development. The initial dataset contained data, was scraped from Airbnb on the 4th and 5th of March 2017. It contained 95 variables and 53.904 objects.
+The dataset for this investigation covers all Airbnb offerings in London as per the 4th and 5th of March 2017. It contains 53.904 objects for 95 different variables. Its source is the website "Inside Airbnb - Adding data to the debate" [@Cox_2017]. This in an independent and non-commercial project aimed to examine the effect of Airbnb activities on urban development.
 
-To use the dataset for this project, some adjustments and additions had to be made.
+Prior to using the dataset for this project, some adjustments and additions had to be made. The operations conducted and the resulting data can be grouped as follows:
 
++ <strong>Price:</strong> Reflects the price per night as offered on Airbnb.
++ <strong>Rent per Zipcode:</strong> The initial dataset holds no information on the regular rent price at the location of an Airbnb. Rent prices however, can be considered as the major cost of providing an Airbnb. Therefore, we used the first half of the Zipcode to apply the average rent for a single bedroom flat to every issuing. The rent information was drawn from SOURCE.
++ <strong>Distance / Location:</strong> Another important aspect of an Airbnb is its location in terms of distance to the city centre. Considering Picadilly Circus (Longitude: -0.133869, Latitude: 51.510067) as the touristic centre of London, we calculated the linear distance for every Airbnb using the Haversine formula. Furthermore, the Cartesian coordinates were calculated, using the instructions of @Irawan_2014, to plot the data on maps provided by @lovelace2014introduction.
++ <strong>Reviews:</strong> Reflect the average customer reviews from Airbnb and the total number of reviews.
++ <strong>Property Characteristics:</strong> Some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms.
++ <strong>Amenities:</strong> On top of the characteristics, Airbnb contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV up to a personal doorman or a pool. We introduced dummy variables for 52 different amenities as well as a variable counting the total number of amenities.
++ <strong>Offering Characteristics:</strong> Lastly some information on the Cancellation Policy or whether the Airbnb is instantly bookable was included.
 
+To allowe this investigation to be more focused, on its actual goal of helping students to find the right place for their desired Airbnb, some filters were applied as well. Therefore, only apartments with a private room and at least three valid ratings were included. The resulting dataset has 78 variables and 6.495 objects.
 
 # Mapping
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
-lnd <- readOGR(dsn = "map_data", layer = "london_sport")
+lnd <- readOGR(dsn = "map_data", layer = "london_sport", verbose = FALSE)
 lnd_f <- broom::tidy(lnd)
 
 
@@ -47,7 +58,7 @@ lnd_f <- broom::tidy(lnd)
 
 map <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
-  geom_point(data = data_short, aes(east, north, color = log10(price_pp)), alpha = 0.5, size = 1) +
+  geom_point(data = data_short, aes(east, north, color = log10(price)), alpha = 0.5, size = 1) +
   labs(x = 'Easting', y = 'Northing') +
   coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4))
 
