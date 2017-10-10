@@ -9,34 +9,143 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Test
 
 This is where I will do my analysis and I will put the interesting stuff in Final_report.Rmd
 hahhahah  hope it work
 
 ```{r}
 library(ggplot2)
+library(stargazer)
 ```
 
 
 ###Descriptive Statistics ###
 
-## 3. location (distance to westminister center)
+#3. Location#
+When choosing an Airbnb in London, people may consider its location since location decides the convenience to travel around or live in London. In our model, we use the distance to city center, Westminster, as an measurement of the Airbnb location. People normally expected that the closer to the city center, the higher the Airbnb rent.
 
 ```{r}
 ggplot(data_short, aes(distance)) + 
   geom_density() +
   theme_minimal() +
-  geom_vline(xintercept = mean(data_short$distance), col = "red")
+  geom_vline(xintercept = mean(data_short$distance), col = "red") 
 summary(data_short$distance)
-quantile(data_short$distance, c(.95))
+#quantile(data_short$distance, c(.95))
 
 ```
 
-exploration with distance
+#correlation between location and price
+
+```{r}
+data_short$distance_cut<- cut(data_short$distance, seq(0, 30, 1), labels = c("0-1", "1-2", "2-3", "3-4","4-5","5-6","6-7","7-8","8-9","9-10","10-11","11-12","12-13","13-14","14-15","15-16","16-17","17-18","18-19","19-20","20-21","21-22","22-23","23-24","24-25","25-26","26-27","27-28","28-29","above 29-30"))
+data_short$distance_cut[is.na(data_short$distance_cut)] <- "above 29-30"
+
+ggplot(data_short, aes(x = distance_cut, y = price)) + 
+  geom_boxplot() +
+  theme(axis.text = element_text(angle = 90, hjust =1)) + ylim(0,200)
+
+ggplot(data_short, aes(x = distance_cut, y = price_pp)) + 
+  geom_boxplot() +
+  theme(axis.text = element_text(angle = 90, hjust =1)) + ylim(0,100)
+
+cor.test(data_short$distance, data_short$price)
+```
+From the boxplot and correlation test above, the relationship between distance to the city center and price is significantly negatively correlated. Statistically speaking, the closer to the city center, the higher the price.
+
+
+
+###The regression model###
+#Description - show the linear one and then the log one and discuss#
+
+
+```{r}
+#copy from "regression_model.R"
+rent_data <- read.csv("Price_rent_0927.csv")
+rent_data <- rent_data %>% group_by(zip_first = toupper(zipcode)) %>% summarise(n = n(), mean_rent = mean(rent))
+data_short <- merge(data_short, rent_data, by="zip_first")
+```
+
+```{r}
+
+m0 <- lm(price ~ mean_rent +
+           distance +
+           accommodates + 
+           review_scores_rating +
+           review_scores_cleanliness +
+           review_scores_location +
+           review_scores_value +
+           beds +
+           `amen_Family/kid_friendly` +
+           amen_TV +
+           amen_Elevator_in_building +
+           amen_Dryer +
+           amen_Kitchen +
+           amen_Washer +
+           amen_Lock_on_bedroom_door +
+           instant_bookable +
+           cancellation_policy,
+         data = data_short)
+
+summary(m0)
+
+m1 <- lm(log10(price) ~ mean_rent +
+                          distance +
+                          accommodates + 
+                          review_scores_rating +
+                          review_scores_cleanliness +
+                          review_scores_location +
+                          review_scores_value +
+                          beds +
+                          `amen_Family/kid_friendly` +
+                          amen_TV +
+                          amen_Elevator_in_building +
+                          amen_Dryer +
+                          amen_Kitchen +
+                          amen_Washer +
+                          amen_Lock_on_bedroom_door +
+                          instant_bookable +
+                          cancellation_policy,
+         data = data_short)
+
+summary(m1)
+
+m2 <- lm(log10(price) ~ mean_rent +
+           distance +
+           accommodates + 
+           review_scores_rating +
+           review_scores_cleanliness +
+           review_scores_location +
+           review_scores_value +
+           amen_TV +
+           amen_Elevator_in_building +
+           amen_Dryer +
+           amen_Washer +
+           amen_Lock_on_bedroom_door,
+         data = data_short)
+
+summary(m2)
+
+stargazer(list(m0,m1,m2), type = "text")
+```
+
+#Interpretation
+
+•	Model 0: With “mean rent of the area (by zip)”, “distance to city center”, “accommodates”, “review scores rating”, “cleanliness review scores ”, “location review scores”, “value review scores”, “beds”, “Family/kid friendly”, “TV”, “elevator in building”, “dryer”, “kitchen”, “washer”, “lock on bedroom door”, “instant bookable” as “cancellation policy” independent variables, “price” as dependent variable in the model, we got adjusted R-squared equal to 34.7%, which means that 34.7% of the Airbnb price can be explained in this model. The intercept of -42.20 tells us what the price will be when all other factors are zero. This number is negative and could not give further information unless combined with other variables.
+•	Mean rent of the area (by zip code) has a significant effect on price. We can see that 1 pound higher in mean rent in the area will raise 0.47 pound in Airbnb price.
+•	Distance to the city center has a negative influence on price that for every extra 1 km away from the city center, the price will decrease 0.60 pound. 
+•	The estimate of accommodates tells us that Airbnb price increase 10 pounds if it can accommodate 1 more person.
+•	Review scores of 4 different dimension are all significant at 1% level. In comparison, review scores for location have the biggest influence that for every 1 more score in location lead to 3.77 pounds higher in Airbnb price. Review scores for cleanliness comes the second that 1 more score can cause 1.88 pounds higher in Airbnb price. The rating review score has relatively little impact on the price that 1 more score in the overall rating only cause 0.37 pounds higher in the price. The negative estimate of value review scores implies that xxxxxx.
+•	Number of beds is not significant in the model. 
+•	Among amenities provided by the host, “Family/kid friendly” and “kitchen” are not significant in the model, which can be explained that xxxx and Airbnb are most popular among travelers or those temporary stay, people may doesn’t care about making food on their own and eat out instead. The estimate of TV tells us that if an Airbnb provides TV, the price will be 6.82 pounds higher. The estimate of elevator in building implies that the Airbnb with elevator leads to 1.79 pounds higher in the price. Dryers are popular and highly demanded as well that the if an Airbnb has dryer, its price is 4.37 pounds higher than others. Washer has a negative impact on price xxxxx, lock on bed
+#washer, lock on bedroom door, instant bookable, cancellation policy
+
+----------------------------------Above--------------------
+
+
+
 ```{r}
 #price_filt <- data_short %>% filter(price_pp <100 )
-data_short$price_cut<-cut(data_short$price_pp, seq(0, 150, 10), labels = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", "101-110", "111-120", "121-130", "131-140", "141-150"))
+data_short$price_cut <- cut(data_short$price_pp, seq(0, 150, 10), labels = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", "101-110", "111-120", "121-130", "131-140", "141-150"))
 
 #filter the distance < 18.08827, (95%) and price_pp <150
 data_short %>% filter(distance < 18, price_pp<150) %>%
@@ -46,6 +155,9 @@ data_short$distance_cut<- cut(data_short$distance, seq(0, 18, 1), labels = c("0-
 data_short %>% filter(distance < 18, price_pp<150) %>%
   ggplot(aes(x = distance_cut, y = price_pp)) + 
   geom_boxplot() 
+
+#labels = c("0-1", "1-2", "2-3", "3-4","4-5","5-6","6-7","7-8","8-9","9-10","10-11","11-12","12-13","13-14","14-15","15-16","16-17","17-18","18-19","19-20","20-21","21-22","22-23","23-24","24-25","25-26","26-27","27-28","28-29","29-30", "30-31","31-32","32-33","33-34","34-35","35-36","36-37","37-38","38-39","39-40"))
+
 ```
 #cut left -half
 #cut into"center","middle" "outter"
