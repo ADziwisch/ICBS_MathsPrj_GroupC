@@ -137,7 +137,7 @@ stargazer(list(m0,m1,m2), type = "text")
 •	Review scores of 4 different dimension are all significant at 1% level. In comparison, review scores for location have the biggest influence that for every 1 more score in location lead to 3.77 pounds higher in Airbnb price. Review scores for cleanliness comes the second that 1 more score can cause 1.88 pounds higher in Airbnb price. The rating review score has relatively little impact on the price that 1 more score in the overall rating only cause 0.37 pounds higher in the price. The negative estimate of value review scores implies that xxxxxx.
 •	Number of beds is not significant in the model. 
 •	Among amenities provided by the host, “Family/kid friendly” and “kitchen” are not significant in the model, which can be explained that xxxx and Airbnb are most popular among travelers or those temporary stay, people may doesn’t care about making food on their own and eat out instead. The estimate of TV tells us that if an Airbnb provides TV, the price will be 6.82 pounds higher. The estimate of elevator in building implies that the Airbnb with elevator leads to 1.79 pounds higher in the price. Dryers are popular and highly demanded as well that the if an Airbnb has dryer, its price is 4.37 pounds higher than others. Washer has a negative impact on price xxxxx, lock on bed
-#washer, lock on bedroom door, instant bookable, cancellation policy
+#review_scores_value, washer, lock on bedroom door, instant bookable, cancellation policy
 
 ----------------------------------Above--------------------
 
