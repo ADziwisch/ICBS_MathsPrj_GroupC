@@ -74,5 +74,3 @@ ggplot(data_short, aes(x = beds)) + geom_bar() + labs(x = "The Number of Beds", 
 ggplot(data_short, aes(x = as.factor(beds), y = price_log)) + geom_boxplot() + labs(x = "The Number of Beds", y = "Log Price") 
 ```
 With most of the accommondations having less than three beds, we can still observe a clear positive relation between the number of beds and price, which matches our expectation. In general, the more beds there are, the higher the price is. Since there are not much data for those with more than three beds, we cannot predict the price of them prcisely.
-
-bla
