@@ -1,0 +1,234 @@
+---
+title: "Airbnb in London - Finding the right price"
+author: "Nina Hauser, Lingyao Li, Jingyin Qiu, Ching Ci Chen, Petr Perina, Alexander Dziwisch"
+date: "13.10.2017"
+output:
+  html_document:
+    number_sections: yes
+    css: style.css
+    includes:
+      before_body: doc_prefix.html
+      after_body: doc_end.html
+bibliography: bibliography.bib
+csl: harvard-imperial-college-london.csl
+---
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(pracma)
+library(sp)
+library(rgdal)
+library(knitr)
+library(stringr)
+library(formattable)
+library(nortest)
+library(stargazer)
+library(gridExtra)
+
+load("data_short.RData")
+
+lnd <- readOGR(dsn = "map_data", layer = "london_sport", verbose = FALSE)
+lnd_f <- broom::tidy(lnd)
+```
+
+# Introduction
+
+Moving to a new city on a tight budget is challenging. Especially, a metropolis like London has high rents and a competitive market that makes it difficult to find accommodation at a reasonable price with just the attributes that you are looking for. Sharing economy services like Airbnb have faciliated the search for a nice room rented out by private agent. The rooms and apartments available are furnished for the user to settle right in. But how do you know if the price you are paying for your flat is acutally a fair price?
+
+Profit of both hosts and the platform itself have skyrocketed in the past years. A typical UK host earns around 3,000 Pound a year [@Indi_2017]. It is certain that profit comes from the user that is paying both the fee of the platform and the profit margin of the host out of his own pocket. If you are on a tight budget yourself you want to pick a price that is market average with the attributes important to you. This paper aims at creating a model to forecast the price a user pay will pay per night for an Airbnb matching his requirements to faciliate the check whether the price of the apartment is indeed the fair price. 
+
+# Description of the dataset
+
+The dataset for this investigation covers all Airbnb offerings in London as per the 4th and 5th of March 2017. It contains 53.904 objects for 95 different variables. Its source is the website "Inside Airbnb - Adding data to the debate" [@Cox_2017]. This in an independent and non-commercial project aimed to examine the effect of Airbnb activities on urban development.
+
+To allow this investigation to be more focused, on its actual goal of helping students to find the right place for their desired Airbnb, the initial dataset was processed by some selections and filters. For example, only apartments with a private room and at least three valid ratings were included. The resulting dataset has 6.495 objects for 78 variables left and shall be described in the following.
+
+## Price
+
+```{r echo = FALSE}
+price_desc <- broom::tidy(summary(data_short$price))
+colnames(price_desc) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
+
+formattable(price_desc, caption = "Table 1: Summary of Price Variable")
+```
+
+With price beeing the dependant variable of our investigation, it can be considered as the most important. When looking at the summary statistics for the price one may quickly find that 75 % of all Airbnbs are priced at 59 Pounds per night or less. However, there are some severe outliers that range up to a maximum of 590 Pounds.
+
+This leaves in doubt, whether the price follows a normal distriubtion which would be desirable for a later linear regression. In fact, by from plotting the price as to the left side below no normal distribution can be found. However, the plot to the right hand side shows, when using a logarithmic scale on the price it looks almost normally distributed.
+
+```{r, echo=FALSE, fig.width=10, fig.height=5, fig.cap="Figure 1: Density of Price and Log10 of Price"}
+p1 <- data_short %>% ggplot(aes(x = price)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "PRICE", y = "DENSITY") + 
+  theme_minimal() + geom_vline(xintercept = mean(data_short$price), col = "#4C00FFFF")
+p2 <- data_short %>% ggplot(aes(x = price_log)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "PRICE - Log10", y = "DENSITY") + 
+  theme_minimal() + geom_vline(xintercept = mean(data_short$price_log), col = "#4C00FFFF")
+
+grid.arrange(p1, p2, ncol = 2, widths = c(1.5, 1))
+```
+
+## Rent
+
+With London beeing one of the most expensive cities to live, rent prices can be considered as the major cost of providing an Airbnb. Therefore, we would like to observe the relationship between rent and AirBnB price. However, the initial dataset holds no information on the regular rent price at the location of an Airbnb. Searching for the big property websites such as Rightmove or Zoopla, we found one website called “Find Properly” [see @Findproperly_2017], which utilizes the data from Zoopla and provide the rent and selling price for each region by 217 zipcode, from BR1 to WD25. Using the zipcode, we were able to map the average weekly rent for 1 bed properties to every Airbnb. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 2: Mapping Rent Prices vs. Airbnb Prices"}
+map1 <- ggplot() +
+  geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
+  geom_point(data = data_short, aes(east, north, color = mean_rent), alpha = 0.5, size = 1) +
+  labs(x = 'Easting', y = 'Northing') +
+  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4)) + theme(legend.position = "bottom")
+
+map2 <- ggplot() +
+  geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
+  geom_point(data = data_short, aes(east, north, color = price_log), alpha = 0.5, size = 1) +
+  labs(x = 'Easting', y = 'Northing') +
+  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4))  + theme(legend.position = "bottom")
+
+grid.arrange(map1, map2, ncol = 2)
+```
+
+Mapping the mean rent and the logarithmic Airbnb prices according to their location some of the expected relationship. Nevertheless, it also becomes clear that there is more to an Airbnb price than just the average rent in the particular neighbourhood.
+
+## Location
+
+When choosing an Airbnb in London, people may consider its location since location decides the convenience to travel around or live in London. In our model, we use the distance to the touristic city center - Picadilly Circus - as a measurement of the Airbnb location. It was calculated by using the Haversine formula and the geographic coordinates of Picadilly Circus (Longitude: -0.133869, Latitude: 51.510067). 
+
+Correlation between location and price
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=5, fig.cap="Figure 2: Mapping Rent Prices vs. Airbnb Prices"}
+data_short$distance_cut<- cut(data_short$distance, seq(0, 30, 1), labels = c("0-1", "1-2", "2-3", "3-4","4-5","5-6","6-7","7-8","8-9","9-10","10-11","11-12","12-13","13-14","14-15","15-16","16-17","17-18","18-19","19-20","20-21","21-22","22-23","23-24","24-25","25-26","26-27","27-28","28-29","above 29-30"))
+data_short$distance_cut[is.na(data_short$distance_cut)] <- "above 29-30"
+
+data_short %>% ggplot() + geom_boxplot(aes(x = distance_cut, y = price_log), fill = "#00E5FFFF", alpha = .5, color = "#4C00FFFF") +
+  theme(axis.text = element_text(angle = 90, hjust =1)) + theme_minimal()
+
+cor.test(data_short$distance, data_short$price_log)
+```
+From the boxplot and correlation test above, the relationship between distance to the city center and price is significantly negatively correlated. Statistically speaking, the closer to the city center, the higher the price.
+
+## Reviews
+
+Additionally to the written reviews, guests can give their hosts star-ratings on the following parameters [see @Airbnb_2017]: Overall experience, accuracy, cleanliness, communication, check in, location and value. Overall experience relates to the general impression of the guest and is only calculated for ads with at least three reviews. Accuracy asks how well the ad represented the real properties of the apartment. Cleanliness accounts for tidyness of the flat. Check in and communication both are service-based: Was communication with the host before and during the stay sufficient and was the check in process smooth or difficult? The location is evaluated based on security, comfort and attractiveness of the neighbourhood. Finally, value is a subjective measure to define whether the guests believe that the apartment is worth the price paid - an interesting measure for our analysis.
+
+While the guest gives his ratings on a one-to-five-star scale, the data set transforms this data to a rating from 1 to 10, for the overall rating from 0 to 100. In the table below, the average of reviews is very high: At either 9 or 10 for the subrating scores and at 92 for the overall score. Reviews start at values 2 or 4 for the subcategories and 20 for the overall rating. This means, that ads with good ratings are overrepresented suggesting ads with bad reviews will be unlikely to be booked and, therefore, removed from the website. {search for academic paper to prove statement!} As the overall score is individually picked, different subcategories have different effects on the overall rating. Overall score is only moderately correlated to location, communication and cleanliness. Accuracy, check in and value are strongly correlated to the points received in overall rating. Transferring these findings to the analysis implies a higher impact of those  variables on the model and shows the necessity to analyse both subcategories and overall rating score as they are given independently. The relation between the different rating scores and price is relatively weak. For none of the categories there is even a weak correlation to price. 
+
+```{r echo=FALSE}
+#This code creates a nice looking table! Just change the name and content of the columns!
+descriptives_rating <- data.frame(
+                 Name=c("Accuracy", "Check In", "Cleanliness", 
+                        "Communication", "Location", "Value", "Overall"),
+                 
+                 Minimum=c(min(data_short$review_scores_accuracy), 
+                           min(data_short$review_scores_checkin),
+                           min(data_short$review_scores_cleanliness),
+                           min(data_short$review_scores_communication),
+                           min(data_short$review_scores_location), 
+                           min(data_short$review_scores_value), 
+                           min(data_short$review_scores_rating)),
+                 
+                 Maximum=c(max(data_short$review_scores_accuracy), 
+                           max(data_short$review_scores_checkin),
+                           max(data_short$review_scores_cleanliness), 
+                           max(data_short$review_scores_communication), 
+                           max(data_short$review_scores_location), 
+                           max(data_short$review_scores_value),
+                           max(data_short$review_scores_rating)), 
+                 
+                 Mean=c(round(mean(data_short$review_scores_accuracy)),
+                        round(mean(data_short$review_scores_checkin)), 
+                        round(mean(data_short$review_scores_cleanliness)),
+                        round(mean(data_short$review_scores_communication)), 
+                        round(mean(data_short$review_scores_location)), 
+                        round(mean(data_short$review_scores_value)),
+                        round(mean(data_short$review_scores_rating))),
+                 
+                 Correlation_Rating=c(round(cor(data_short$review_scores_rating, data_short$review_scores_accuracy, 
+                                                use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_cleanliness, use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_checkin, use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_communication, use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_location, use = "complete.obs"),2),
+                               round(cor(data_short$review_scores_rating, data_short$review_scores_value, use = "complete.obs"),2),
+                               1),
+                 
+                 Correlation_Price=c(round(cor(data_short$price_log, data_short$review_scores_accuracy, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_cleanliness, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_checkin, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_communication, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_location, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_value, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_rating, use = "complete.obs"),2)))
+
+formattable(descriptives_rating, list(
+  Name=formatter(
+    "span",
+    style = x ~ ifelse(x == "Overall", 
+                       style(font.weight = "bold"), NA))))
+```
+
+
+
+## Amenity
+In AirBnB, landlords offer different amenities for the tenants, including Wifi, kitchen, washer, even shampoo, and etc, and those facilities will be showed in the webpages for tenants’ references. Out of 53,844 offerings of rooms in London, internet connections are the most important elements in room. There are 97% of the rooms offering Wifi and internet connection. Besides, some general amenities for houses such as heating facilities (96%), kitchens (91%), essentials (85%), washers (81%), shampoo(62%), hangers (61%), and Iron (56%), will often be provided in houses/rooms. However, in London, most of the offerings don’t allow their customers to smoke and to bring their pets with them. 77% of rooms are with smoke detectors, and only 10% of rooms are smoking allowed and pets allowed. Due to the weather in London, air-con facility seems not important, but this will be a must in most of the Asian countries. 
+
+```{r eval=FALSE}
+ggplot(data_remove_amen,aes(x =reorder(amen_name, -number),y=number))+geom_col()+theme(axis.text = element_text(angle= 90, hjust = 1))+labs(x = "amenity",y="%")
+```
+
+```{r eval=FALSE}
+library(plyr)
+rating<-list("number_of_reviews","review_scores_rating","review_scores_value")
+rating1<-unlist(rating)
+amen_list<-list(amen_name)
+amen_list1<-unlist(amen_list)
+data.cor<-select(data_short,contains("amen_"),price,number_of_reviews,review_scores_rating,review_scores_value,review_scores_cleanliness)%>%filter(!is.na(number_of_reviews),!is.na(review_scores_rating),!is.na(review_scores_value),!is.na(review_scores_cleanliness))
+data_amen1<-rename(data.cor,c("amen_24-hour_check-in"="amen_24_hour_check_in","amen_Washer_/_Dryer"="amen_Washer_Dryer","amen_Family/kid_friendly"="amen_Family_kid_friendly","amen_Buzzer/wireless_intercom"="amen_Buzzer_wireless_intercom","amen_Cat(s)"="amen_Cat","amen_Dog(s)"="amen_Dog","amen_Other_pet(s)"="amen_Other_pet","amen_Self_Check-In"="amen_Self_Check_In"))
+data_amen<-filter(data_amen1,price<100)
+data_amen2<-filter(data_amen1,review_scores_rating>=80)
+data_amen3<-filter(data_amen1,review_scores_value>=8)
+data_amen4<-filter(data_amen1,review_scores_cleanliness>=8)
+data_amen5<-filter(data_amen1,number_of_reviews<=50)
+
+```
+
+### Key ameniteis to influence the price
+
+There are around 49 offers of amenities in the AirBnB in London. Out of 49 amenities offerings, we found 7 amenities may influence the price, including some home essentials such as kitchens, TVs, dryers, and washers, facilities like elevators or whether it’s a family-kid friendly environment as well as whether it provides lock on the bedroom door. The price of the accommodation with TVs, elevators, dryers and washers is higher than those don’t, especially for TV, which may lead to higher overall rating and perceived value from customers (Please refer to the plot between the amenity and rating below. Since most of the ratings are above 80 or 8, we do filter the rooms with rating more than 80 or 8 to see the difference. People tend to rate the room among higher range, mostly above 90 or 9. Therefore, some drop from 10 to 9 should already be significant.)  However, it seems the market doesn’t value those accommodations with family-kid friendly environment and kitchen. Their prices are slightly lower than those without those amenities. Probably, those amenities linked to more work and noisy. Another interesting finding is the room without the lock can may have higher price than others, which may be reasoned that the room with lock may mainly in more unsafe regions.
+
+
+```{r eval=FALSE}
+ggplot(data_amen,aes(x=amen_Family_kid_friendly,y=price))+geom_boxplot()
+ggplot(data_amen,aes(x=amen_TV,y=price))+geom_boxplot()
+ggplot(data_amen,aes(x=amen_Elevator_in_building,y=price))+geom_boxplot()
+ggplot(data_amen,aes(x=amen_Dryer,y=price))+geom_boxplot()
+ggplot(data_amen,aes(x=amen_Kitchen,y=price))+geom_boxplot()
+ggplot(data_amen,aes(x=amen_Washer,y=price))+geom_boxplot()
+ggplot(data_amen,aes(x=amen_Lock_on_bedroom_door,y=price))+geom_boxplot()
+```
+
+```{r eval=FALSE}
+
+ggplot(data_amen2,aes(x=amen_TV,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=amen_Elevator_in_building,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=amen_Family_kid_friendly,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=amen_Dryer,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=amen_Kitchen,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=amen_Washer,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=amen_Lock_on_bedroom_door,y=review_scores_rating))+geom_boxplot()
+
+
+```
+
+```{r eval=FALSE}
+ggplot(data_amen3,aes(x=amen_TV,y=review_scores_value))+geom_boxplot()
+
+```
+
++ <strong>Property Characteristics:</strong> Some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms.
++ <strong>Amenities:</strong> On top of the characteristics, Airbnb contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV up to a personal doorman or a pool. We introduced dummy variables for 52 different amenities as well as a variable counting the total number of amenities.
++ <strong>Offering Characteristics:</strong> Lastly some information on the Cancellation Policy or whether the Airbnb is instantly bookable was included.
+
+
+Furthermore, the Cartesian coordinates were calculated, using the instructions of @Irawan_2014, to plot the data on maps provided by @lovelace2014introduction.
+
+
+# Bibliography

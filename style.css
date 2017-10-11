@@ -1,3 +1,7 @@
+body{
+  text-align: justify;
+}
+
 body .main-container{
   max-width: 100%;
   padding: 0px !important;
@@ -37,6 +41,27 @@ body .title{
 
 body #introduction{
   margin-top: 150px;
+}
+
+body .caption{
+  font-style: italic;
+  text-align: center;
+  font-size: 0.9 em;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+body .table > caption{
+  font-style: italic;
+  text-align: center;
+  font-size: 0.9 em;
+  color: #333;
+}
+
+body #price > .table{
+  width: 50%;
+  float: right;
+  margin-left: 15px;
 }
 
 body .bottom-box{

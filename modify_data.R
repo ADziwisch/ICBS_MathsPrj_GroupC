@@ -23,11 +23,11 @@ data_short <- filter(data_short, data_short$number_of_reviews >= 3 &
                                  data_short$room_type == "Private room" &
                                  data_short$cancellation_policy != "super_strict_30")
 
-## Mutate price per person & Filter Price PP <= 100
+## Transform price from string to double and mutate log10(price)
 
 data_short$price <- as.double(substr(paste(data_short$price), 2, 500))
-data_short <- data_short %>% filter(!is.na(price)) %>% mutate(price_pp = price / accommodates)
-#data_short <- data_short %>% filter(!is.na(price_pp)) %>% filter(price <= 100)
+data_short <- data_short %>% filter(!is.na(price))
+data_short <- data_short %>% mutate(price_log = log10(price))
 
 ## Mutate Zipcode as string
 
@@ -36,10 +36,12 @@ data_short$zip_first <- str_extract(data_short$zipcode, "[[:alpha:]]{1,2}[[:digi
 data_short$zip_first <- toupper(data_short$zip_first)
 
 ## Add rent data 
+rent_data <- readxl::read_xlsx("Rent_Region.xlsx")
+rent_data <- rent_data %>% select(District, "1")
+colnames(rent_data)[1:2] <- c("zip_first", "mean_rent")
+data_short <- merge(data_short, rent_data, by="zip_first")
 
-rent_data <- read.csv("Price_rent_0927.csv")
-rent_data <- rent_data %>% group_by(zip_first = toupper(zipcode)) %>% summarise(n = n(), mean_rent = mean(rent))
-data_short <- merge(data_short, rent_data_short, by="zip_first")
+rm(rent_data)
 
 ## Mutate distance from Picadilly Circus
 
@@ -96,12 +98,11 @@ data_short$instant_bookable <- factor(data_short$instant_bookable, levels = c("t
 ## Final cleaning and sorting of the data
 
 data_short <- na.omit(data_short)
-data_short <- data_short %>% select(price,
+data_short <- data_short %>% select(price, price_log,
                                     zip_first, mean_rent, distance, east, north,
                                     starts_with("review"), number_of_reviews,
                                     property_type, room_type, accommodates, bathrooms, bedrooms, beds,
                                     amenities_count, starts_with("amen_"), 
-                                    minimum_nights, instant_bookable, cancellation_policy,
-                                    price_pp)
+                                    minimum_nights, instant_bookable, cancellation_policy)
 
 save(data_short, file = "data_short.RData")

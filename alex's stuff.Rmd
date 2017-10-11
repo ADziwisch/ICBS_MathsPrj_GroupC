@@ -1,5 +1,5 @@
 ---
-title: "Airbnb in London - How much to pay?"
+title: "Airbnb in London - Finding the right price?"
 author: "Group C"
 date: "13.10.2017"
 output:
@@ -17,18 +17,25 @@ csl: harvard-imperial-college-london.csl
 ---
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
-
 library(ggplot2)
 library(dplyr)
 library(pracma)
 library(sp)
 library(rgdal)
 library(knitr)
+library(stringr)
 
 load("data_short.RData")
+
+lnd <- readOGR(dsn = "map_data", layer = "london_sport", verbose = FALSE)
+lnd_f <- broom::tidy(lnd)
 ```
 
 # Introduction
+
+Moving to a new city on a tight budget is challenging. Especially, a metropolis like London has high rents and a competitive market that makes it difficult to find accommodation at a reasonable price with just the attributes that you are looking for. Sharing economy services like Airbnb have faciliated the search for a nice room rented out by private agent. The rooms and apartments available are furnished for the user to settle right in. But how do you know if the price you are paying for your flat is acutally a fair price?
+
+Profit of both hosts and the platform itself have skyrocketed in the past years. A typical UK host earns around 3,000 Pound a year [@Indi_2017]. It is certain that profit comes from the user that is paying both the fee of the platform and the profit margin of the host out of his own pocket. If you are on a tight budget yourself you want to pick a price that is market average with the attributes important to you. This paper aims at creating a model to forecast the price a user pay will pay per night for an Airbnb matching his requirements to faciliate the check whether the price of the apartment is indeed the fair price. 
 
 # Description of the dataset
 
@@ -46,16 +53,21 @@ Prior to using the dataset for this project, some adjustments and additions had 
 
 To allowe this investigation to be more focused, on its actual goal of helping students to find the right place for their desired Airbnb, some filters were applied as well. Therefore, only apartments with a private room and at least three valid ratings were included. The resulting dataset has 78 variables and 6.495 objects.
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+map <- ggplot() +
+  geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
+  geom_point(data = data_short, aes(east, north, color = str_extract(data_short$zip_first, "[[:alpha:]]{1,2}")), alpha = 0.5, size = 1) +
+  labs(x = 'Easting', y = 'Northing') +
+  coord_equal() + theme_minimal() + scale_color_manual(values = topo.colors(18)) + guides(color=FALSE)
+
+map
+```
+
+
+
 # Mapping
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-
-lnd <- readOGR(dsn = "map_data", layer = "london_sport", verbose = FALSE)
-lnd_f <- broom::tidy(lnd)
-
-
-#data_short <- data_short %>% arrange(log10(price_pp))
-
 map <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_short, aes(east, north, color = log10(price)), alpha = 0.5, size = 1) +
@@ -63,7 +75,6 @@ map <- ggplot() +
   coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4))
 
 map
-
 ```
 
 # Bibliography
