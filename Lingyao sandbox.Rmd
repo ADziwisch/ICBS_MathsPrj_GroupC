@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r include=FALSE}
 library(ggplot2)
 library(dplyr)
+library(car)
 load("data_short.RData")
 ```
 
@@ -26,13 +27,12 @@ To attract more customers, sometimes hosts allow instant book of their propertie
 ```{r}
 summary(data_short$instant_bookable)
 cor.test(as.numeric(data_short$instant_bookable), 
-         data_short$price_pp)
-ggplot(data = data_short, aes(x = instant_bookable, y = price_pp)) + geom_boxplot() + labs(x = "Instant Bookable", y = "Price Per Person") 
-t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_pp"], 
-       data_short[data_short[, "instant_bookable"]  == "FALSE", "price_pp"])
+         data_short$price_log)
+t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_log"], 
+       data_short[data_short[, "instant_bookable"]  == "FALSE", "price_plog"])
 ```
 Despite the fact that instant book will make the booking process more convient for both hosts and guests, there are only about 26.5% of hosts adopt it.  
-From the Pearson's product-moment correlation test, its relatively low correlation shows there is not very linear relation between instant bookability and price pp, while the t-test for means suggests otherwise. If we look at the boxplot, we can see that in general price_pp is higher if the accommodation cannot be booked instantly. The resut does make sense in practice. Under the circumstances where the rent is relatively high, hosts are more likely not to implement instant-book policy in order to protect their property.
+From the Pearson's product-moment correlation test, its relatively low correlation shows there is not very linear relation between instant bookability and price, while the t-test for means suggests otherwise. In general price_log is higher if the room cannot be booked instantly. The resut does make sense in practice. Under the circumstances where the rent is relatively high, hosts are more likely not to implement instant-book policy in order to protect their property.
 
 # cancellation_policy
 
@@ -40,21 +40,28 @@ In addition to instant book, hosts also have the right to choose their own cance
 (reference and citation may be needed here, url: https://www.airbnb.co.uk/home/cancellation_policies#strict)
 
 ```{r}
-summary(data_short$cancellation_policy)
 cor.test(as.numeric(data_short$cancellation_policy),
-         data_short$price_pp)
-ggplot(data_short, aes(x = cancellation_policy, y=price_pp)) + geom_boxplot() + labs(x = "Cancellation Policy", y = "Price Per Person") 
+         data_short$price_log)
+
+t.test(data_short[data_short[, "cancellation_policy"] == "flexible", "price_log"], 
+       data_short[data_short[, "cancellation_policy"] == "moderate", "price_log"])
+t.test(data_short[data_short[, "cancellation_policy"] == "flexible", "price_log"], 
+       data_short[data_short[, "cancellation_policy"] == "strict", "price_log"])
+t.test(data_short[data_short[, "cancellation_policy"] == "moderate", "price_log"], 
+       data_short[data_short[, "cancellation_policy"] == "strict", "price_log"])
 ```
 
-Surprisingly, accommondations with strict cancellation policy in general have lower price than others. One possible reason might be that with strict policy, hosts' profits are more secure so that they 
+We can conclude from the above tests that, thre is a positive correlation between cancellation policy and pricw_log, which means in general if the host has stricter cancellation policy, price is higher. In reality, if the price is higher, hosts are more likely to implement strict cancallation policy to secure their profit. 
 
 Now we want to analyse if there is any correlation between these 2 variables.
 
 ```{r}
 cor.test(as.numeric(data_short$instant_bookable), as.numeric(data_short$cancellation_policy))
+vif(lm(price ~ cancellation_policy + instant_bookable, data_short))
 ggplot(data = data_short, aes(x = cancellation_policy, fill = instant_bookable)) + geom_bar(position = "dodge") + labs(x = "Cancellation Policy", y = "Count") 
 ```
-As we can see, a larger propotion of apartments with srict cancellation policy are instant bookable, compared with those with other cancellation policies. 
+
+As we can see, there is negative correlation between cancellation policy and instant bookble. A larger propotion of apartments with srict cancellation policy are instant bookable, compared with those with other cancellation policies. VIF values suggest that there is no multicolearity problem between these two variables.
 
 
 # beds
@@ -62,11 +69,10 @@ The variable beds describes how many deds are available for guests. With more be
 
 ```{r}
 summary(data_short$beds)
-cor.test(data_short$beds, data_short$price)
+cor.test(data_short$beds, data_short$price_log)
 ggplot(data_short, aes(x = beds)) + geom_bar() + labs(x = "The Number of Beds", y = "Count") 
-ggplot(data_short, aes(x = as.factor(beds), y = price)) + geom_boxplot() + labs(x = "The Number of Beds", y = "Price") 
+ggplot(data_short, aes(x = as.factor(beds), y = price_log)) + geom_boxplot() + labs(x = "The Number of Beds", y = "Log Price") 
 ```
 With most of the accommondations having less than three beds, we can still observe a clear positive relation between the number of beds and price, which matches our expectation. In general, the more beds there are, the higher the price is. Since there are not much data for those with more than three beds, we cannot predict the price of them prcisely.
-
 
 bla
