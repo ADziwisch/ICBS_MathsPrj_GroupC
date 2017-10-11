@@ -86,67 +86,43 @@ m0 <- lm(price ~ mean_rent +
          data = data_short)
 
 m1 <- lm(log10(price) ~ mean_rent +
-           distance +
-           accommodates + 
-           review_scores_rating +
-           review_scores_cleanliness +
-           review_scores_location +
-           review_scores_value +
-           beds +
-           `amen_Family/kid_friendly` +
-           amen_TV +
-           amen_Elevator_in_building +
-           amen_Dryer +
-           amen_Kitchen +
-           amen_Washer +
-           amen_Lock_on_bedroom_door +
-           instant_bookable +
-           cancellation_policy,
+                          distance +
+                          accommodates + 
+                          review_scores_rating +
+                          review_scores_cleanliness +
+                          review_scores_location +
+                          beds +
+                          `amen_Family/kid_friendly` +
+                          amen_TV +
+                          amen_Elevator_in_building +
+                          amen_Dryer +
+                          amen_Kitchen +
+                          amen_Washer +
+                          amen_Lock_on_bedroom_door +
+                          instant_bookable +
+                          cancellation_policy,
          data = data_short)
 
 m2 <- lm(log10(price) ~ mean_rent +
            distance +
            accommodates + 
-           review_scores_rating +
            review_scores_cleanliness +
            review_scores_location +
            amen_TV +
            amen_Elevator_in_building +
-           amen_Dryer +
-           amen_Kitchen +
-           amen_Washer +
-           amen_Lock_on_bedroom_door,
+           amen_Dryer,
          data = data_short)
 
-m3 <- lm(log10(price) ~ mean_rent +
-           distance +
-           accommodates + 
-           review_scores_cleanliness +
-           review_scores_location +
-           amen_TV +
-           amen_Elevator_in_building +
-           amen_Dryer +
-           amen_Kitchen +
-           amen_Washer +
-           amen_Lock_on_bedroom_door,
-         data = data_short)
-
-summary(m3)
-stargazer(list(m1,m3), type = "text")
+stargazer(list(m1,m2), type = "text")
 ```
 
 #Interpretation
+As our dependent variable had to be transformed to it's logarithmic version, a log-linear regression model is used to explain the effect of the independent variables on the dependent variable. Some of the amendities had a negative impact on the price, which is conterintuitive. As the effects are small and likely to be caused by random noise, such variables are excluded. Additionally, only variables that are significant for the regression are kept in the model:
 
-•	Model 0: With “mean rent of the area (by zip)”, “distance to city center”, “accommodates”, “review scores rating”, “cleanliness review scores ”, “location review scores”, “value review scores”, “beds”, “Family/kid friendly”, “TV”, “elevator in building”, “dryer”, “kitchen”, “washer”, “lock on bedroom door”, “instant bookable” as “cancellation policy” independent variables, “price” as dependent variable in the model, we got adjusted R-squared equal to 34.7%, which means that 34.7% of the Airbnb price can be explained in this model. The intercept of -42.20 tells us what the price will be when all other factors are zero. This number is negative and could not give further information unless combined with other variables.
-•	Mean rent of the area (by zip code) has a significant effect on price. We can see that 1 pound higher in mean rent in the area will raise 0.47 pound in Airbnb price.
-•	Distance to the city center has a negative influence on price that for every extra 1 km away from the city center, the price will decrease 0.60 pound. 
-•	The estimate of accommodates tells us that Airbnb price increase 10 pounds if it can accommodate 1 more person.
-•	Review scores of 4 different dimension are all significant at 1% level. In comparison, review scores for location have the biggest influence that for every 1 more score in location lead to 3.77 pounds higher in Airbnb price. Review scores for cleanliness comes the second that 1 more score can cause 1.88 pounds higher in Airbnb price. The rating review score has relatively little impact on the price that 1 more score in the overall rating only cause 0.37 pounds higher in the price. The negative estimate of value review scores implies that xxxxxx.
-•	Number of beds is not significant in the model. 
-•	Among amenities provided by the host, “Family/kid friendly” and “kitchen” are not significant in the model, which can be explained that xxxx and Airbnb are most popular among travelers or those temporary stay, people may doesn’t care about making food on their own and eat out instead. The estimate of TV tells us that if an Airbnb provides TV, the price will be 6.82 pounds higher. The estimate of elevator in building implies that the Airbnb with elevator leads to 1.79 pounds higher in the price. Dryers are popular and highly demanded as well that the if an Airbnb has dryer, its price is 4.37 pounds higher than others. Washer has a negative impact on price xxxxx, lock on bed
-#kitchen, review_scores_value, washer, lock on bedroom door, instant bookable, cancellation policy
+$$ y =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(accomodates) + \beta_4(review\_scores\_rating) + \beta_5(review\_scores\_cleanliness) + \beta_6(review\_scores\_location) + \beta_7(TV) + \beta_8(elevator) + \beta_9(dryer) + u$$
+41.8 percent of the variation of the observations can be explained with the presented regression model. Even though residuals are high, the F-statistic is highly significant and the model provides a far better explanation than just the coefficient value.The y-intercept is located at 9.1411 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points y changes if $$x_i$$ changes by one unit. For example, for every additional person a room can accomodate, y rises by 6.7 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and amenities like the existence of a TV, elevator and dryer have the largest postive effects on the price of a room. The review scores of value had to be taken out of the regression because the inherint endogenity problem: Price is a large factor in determining the review of a guest regarding the price for value. Interestingly, the effect of distance is small and negative. Firstly, this impies that distance to city center is not the best measure to account for geographic differences. Secondly, concurrence in the city center could be responsible for the negativity: With a rising amount of rooms available, prices are under pressure. 
 
-----------------------------------Above--------------------
+---------------------------------Above----------------------------------------------
 
 
 
