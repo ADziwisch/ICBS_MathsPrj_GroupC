@@ -165,78 +165,103 @@ descriptives_rating <- data.frame(
 formattable(descriptives_rating, caption = "Table 1: Summary of Price Variable")
 ```
 
-## Property Characteristics and Amenities
+## Property Characteristics
 
-```{r eval=FALSE}
+beds
+The variable beds describes how many deds are available for guests. With more beds available, the price of an accommodation should be higher when setting other parameters equal, if we think about it intuitively. But how exactly does the number of beds influence the price?
+
+```{r}
+summary(data_short$beds)
+cor.test(data_short$beds, data_short$price)
+ggplot(data_short, aes(x = beds)) + geom_bar() + labs(x = "The Number of Beds", y = "Count") 
+ggplot(data_short, aes(x = as.factor(beds), y = price)) + geom_boxplot() + labs(x = "The Number of Beds", y = "Price") 
+```
+With most of the accommondations having less than three beds, we can still observe a clear positive relation between the number of beds and price, which matches our expectation. In general, the more beds there are, the higher the price is. Since there are not much data for those with more than three beds, we cannot predict the price of them prcisely.
+
+## Amenities
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=5.5, fig.cap="Figure 3: Mapping Rent Prices vs. Airbnb Prices"}
 amen <- select(data_short, contains("amen_"))
 amen_name <- colnames(amen)
 number <- colMeans(amen[, (1:53)], na.rm=TRUE) * 100
 amen_data <- as.data.frame(amen_name)
 amen_data$number = number
 amen_data <- amen_data[-c(6,17,18,21,36,45,51),]
+amen_data <- amen_data %>% filter(number <= 91 & number >= 15)
 amen_data <- arrange(amen_data , desc(number))
 
-amen_data %>% ggplot() + geom_bar(aes(x = reorder(amen_name, number), y = number), stat = 'identity') + coord_flip()
+amen_data %>% ggplot() + geom_bar(aes(x = reorder(amen_name, number), y = number), fill = "#00E5FFFF", alpha = .5, stat = 'identity', width = 1) + coord_flip() + theme_minimal()
 ```
 
-Airbnb includes some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms. On top of these characteristics, Airbnb contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV up to a personal doorman or a pool. In order to analyse these, we introduced dummy variables for 52 different amenities as well as a variable counting the total number of amenities.
+Airbnb includes some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms. On top of these characteristics, Airbnb contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV up to a personal doorman or a pool. In order to analyse these, we introduced dummy variables for 53 different amenities, with 46 resulting in usable data, as well as a variable counting the total number of amenities.
 
-There are 97% of the rooms offering Wifi and internet connection. Besides, some general amenities for houses such as heating facilities (96%), kitchens (91%), essentials (85%), washers (81%), shampoo(62%), hangers (61%), and Iron (56%), will often be provided in houses/rooms. However, in London, most of the offerings don’t allow their customers to smoke and to bring their pets with them. 77% of rooms are with smoke detectors, and only 10% of rooms are smoking allowed and pets allowed. Due to the weather in London, air-con facility seems not important, but this will be a must in most of the Asian countries. 
+We found 7 amenities which influence the price, including some home essentials such as kitchens, TVs, dryers, and washers, facilities like elevators or whether it’s a family-kid friendly environment as well as whether it provides lock on the bedroom door. The price of the accommodation with TVs, elevators, dryers and washers is higher than those don’t, especially for TV. However, it seems the market doesn’t value those accommodations with family-kid friendly environment and kitchen. Their prices are slightly lower than those without those amenities. Probably, those amenities linked to more work and noisy. Another interesting finding is the room without the lock can may have higher price than others, which may be reasoned that the room with lock may mainly in more unsafe regions.
 
+```{r echo = FALSE}
+t1 <- t.test(data_short[data_short[, "amen_Washer"] == "TRUE", "price_log"], 
+       data_short[data_short[, "amen_Washer"]  == "FALSE", "price_log"])
+t2 <- t.test(data_short[data_short[, "amen_TV"] == "TRUE", "price_log"], 
+       data_short[data_short[, "amen_TV"]  == "FALSE", "price_log"])
+t3 <- t.test(data_short[data_short[, "amen_Family/kid_friendly"] == "TRUE", "price_log"], 
+       data_short[data_short[, "amen_Family/kid_friendly"]  == "FALSE", "price_log"])
+t4 <- t.test(data_short[data_short[, "amen_Dryer"] == "TRUE", "price_log"], 
+       data_short[data_short[, "amen_Dryer"]  == "FALSE", "price_log"])
+t5 <- t.test(data_short[data_short[, "amen_Kitchen"] == "TRUE", "price_log"], 
+       data_short[data_short[, "amen_Kitchen"]  == "FALSE", "price_log"])
+t6 <- t.test(data_short[data_short[, "amen_Elevator_in_building"] == "TRUE", "price_log"], 
+       data_short[data_short[, "amen_Elevator_in_building"]  == "FALSE", "price_log"])
+t7 <- t.test(data_short[data_short[, "amen_Lock_on_bedroom_door"] == "TRUE", "price_log"], 
+       data_short[data_short[, "amen_Lock_on_bedroom_door"]  == "FALSE", "price_log"])
 
+t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Kitchen", "Elevator in Building", "Lock on Bedroom Door"), p_vals = c(t1$p.value, t2$p.value, t3$p.value, t4$p.value, t5$p.value, t6$p.value, t7$p.value), x_mean = c(t1$estimate[1], t2$estimate[1], t3$estimate[1], t4$estimate[1], t5$estimate[1], t6$estimate[1], t7$estimate[1]), y_mean = c(t1$estimate[2], t2$estimate[2], t3$estimate[2], t4$estimate[2], t5$estimate[2], t6$estimate[2], t7$estimate[2]))
 
-```{r eval=FALSE}
-library(plyr)
-rating<-list("number_of_reviews","review_scores_rating","review_scores_value")
-rating1<-unlist(rating)
-amen_list<-list(amen_name)
-amen_list1<-unlist(amen_list)
-data.cor<-select(data_short,contains("amen_"),price,number_of_reviews,review_scores_rating,review_scores_value,review_scores_cleanliness)%>%filter(!is.na(number_of_reviews),!is.na(review_scores_rating),!is.na(review_scores_value),!is.na(review_scores_cleanliness))
-data_amen1<-rename(data.cor,c("amen_24-hour_check-in"="amen_24_hour_check_in","amen_Washer_/_Dryer"="amen_Washer_Dryer","amen_Family/kid_friendly"="amen_Family_kid_friendly","amen_Buzzer/wireless_intercom"="amen_Buzzer_wireless_intercom","amen_Cat(s)"="amen_Cat","amen_Dog(s)"="amen_Dog","amen_Other_pet(s)"="amen_Other_pet","amen_Self_Check-In"="amen_Self_Check_In"))
-data_amen<-filter(data_amen1,price<100)
-data_amen2<-filter(data_amen1,review_scores_rating>=80)
-data_amen3<-filter(data_amen1,review_scores_value>=8)
-data_amen4<-filter(data_amen1,review_scores_cleanliness>=8)
-data_amen5<-filter(data_amen1,number_of_reviews<=50)
+t_data <- t_data %>% mutate(diff_mean = x_mean - y_mean)
 
+formattable(t_data, caption = "Table 1: Summary of Price Variable")
 ```
 
-### Key ameniteis to influence the price
 
-There are around 49 offers of amenities in the AirBnB in London. Out of 49 amenities offerings, we found 7 amenities may influence the price, including some home essentials such as kitchens, TVs, dryers, and washers, facilities like elevators or whether it’s a family-kid friendly environment as well as whether it provides lock on the bedroom door. The price of the accommodation with TVs, elevators, dryers and washers is higher than those don’t, especially for TV, which may lead to higher overall rating and perceived value from customers (Please refer to the plot between the amenity and rating below. Since most of the ratings are above 80 or 8, we do filter the rooms with rating more than 80 or 8 to see the difference. People tend to rate the room among higher range, mostly above 90 or 9. Therefore, some drop from 10 to 9 should already be significant.)  However, it seems the market doesn’t value those accommodations with family-kid friendly environment and kitchen. Their prices are slightly lower than those without those amenities. Probably, those amenities linked to more work and noisy. Another interesting finding is the room without the lock can may have higher price than others, which may be reasoned that the room with lock may mainly in more unsafe regions.
+## Offering Characteristics
 
+In this part, we are going to analyse attributes of the ad. We choose 2 variables that we think may influence price_pp intuitively, which includes whether it is instant bookable and cancellation policy. 
 
-```{r eval=FALSE}
-ggplot(data_amen,aes(x=amen_Family_kid_friendly,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_TV,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Elevator_in_building,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Dryer,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Kitchen,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Washer,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Lock_on_bedroom_door,y=price))+geom_boxplot()
+To attract more customers, sometimes hosts allow instant book of their properties. In terms of instant book, there are 2 kinds of accommodation. In our dataset, TRUE means guests can book the desired property instantly, while FALSE means they have to discuss their plans with the host and wait for approval before they can book. 
+
+```{r echo=FALSE}
+cor.test(as.numeric(data_short$instant_bookable), data_short$price_log, method = "spearman")
+ggplot(data = data_short, aes(x = instant_bookable, y = price_log)) + geom_boxplot() + labs(x = "Instant Bookable", y = "Price Per Person") 
+
+t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_log"], 
+       data_short[data_short[, "instant_bookable"]  == "FALSE", "price_log"])
+```
+Despite the fact that instant book will make the booking process more convient for both hosts and guests, there are only about 26.5% of hosts adopt it.  
+From the Pearson's product-moment correlation test, its relatively low correlation shows there is not very linear relation between instant bookability and price pp, while the t-test for means suggests otherwise. If we look at the boxplot, we can see that in general price_pp is higher if the accommodation cannot be booked instantly. The resut does make sense in practice. Under the circumstances where the rent is relatively high, hosts are more likely not to implement instant-book policy in order to protect their property.
+
+cancellation_policy
+
+In addition to instant book, hosts also have the right to choose their own cancellation policy. Cancellation policy decides whether or not guests can get refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get full refund if the reservation is cancelled within limited period, mostly 24 hours prior to the check in. If moderate, fees are fully refundable but within a longer time period. Under the circumstances of strict policy, only 50% of fees may be refunded until 1 week prior to check in. 
+(reference and citation may be needed here, url: https://www.airbnb.co.uk/home/cancellation_policies#strict)
+
+```{r}
+summary(data_short$cancellation_policy)
+cor.test(as.numeric(data_short$cancellation_policy), data_short$price)
+ggplot(data_short, aes(x = cancellation_policy, y=price)) + geom_boxplot() + labs(x = "Cancellation Policy", y = "Price Per Person") 
 ```
 
-```{r eval=FALSE}
+Surprisingly, accommondations with strict cancellation policy in general have lower price than others. One possible reason might be that with strict policy, hosts' profits are more secure so that they 
 
-ggplot(data_amen2,aes(x=amen_TV,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Elevator_in_building,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Family_kid_friendly,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Dryer,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Kitchen,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Washer,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Lock_on_bedroom_door,y=review_scores_rating))+geom_boxplot()
+Now we want to analyse if there is any correlation between these 2 variables.
 
-
+```{r}
+cor.test(as.numeric(data_short$instant_bookable), as.numeric(data_short$cancellation_policy))
+ggplot(data = data_short, aes(x = cancellation_policy, fill = instant_bookable)) + geom_bar(position = "dodge") + labs(x = "Cancellation Policy", y = "Count") 
 ```
+As we can see, a larger propotion of apartments with srict cancellation policy are instant bookable, compared with those with other cancellation policies. 
 
-```{r eval=FALSE}
-ggplot(data_amen3,aes(x=amen_TV,y=review_scores_value))+geom_boxplot()
 
-```
 
-+ <strong>Property Characteristics:</strong> Some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms.
-+ <strong>Amenities:</strong> On top of the characteristics, Airbnb contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV up to a personal doorman or a pool. We introduced dummy variables for 52 different amenities as well as a variable counting the total number of amenities.
-+ <strong>Offering Characteristics:</strong> Lastly some information on the Cancellation Policy or whether the Airbnb is instantly bookable was included.
+
+
 
 
 Furthermore, the Cartesian coordinates were calculated, using the instructions of @Irawan_2014, to plot the data on maps provided by @lovelace2014introduction.
