@@ -130,12 +130,9 @@ m2 <- lm(log10(price) ~ mean_rent +
            review_scores_rating +
            review_scores_cleanliness +
            review_scores_location +
-           review_scores_value +
            amen_TV +
            amen_Elevator_in_building +
-           amen_Dryer +
-           amen_Washer +
-           amen_Lock_on_bedroom_door,
+           amen_Dryer,
          data = data_short)
 
 summary(m2)
@@ -156,10 +153,11 @@ ggplot(data = data_short, aes(x = predicted, y= residuals)) +
   geom_smooth(method = "lm", se = FALSE, col ="darkred") +
   theme_classic()
 
-ggplot(data = data_short, aes(x = log10(price), y = predicted)) +
+ggplot(data = data_short, aes(x = price_log, y = predicted)) +
   geom_point(col = "grey", alpha = 0.4) +
   geom_smooth(method = "lm", se = FALSE, col ="darkred") +
-  theme_classic()
+  theme_classic() +
+  xlab("price")
 ```
 ```{r}
 
@@ -174,7 +172,7 @@ low_residuals <- data_short %>%
 descriptives_residuals <- data.frame(
                  Name=c("Data with high residuals", "Data with low residuals"),
                  
-                 Mean_Log_Rent=c(round(mean(high_residuals$price_log), 2), round(mean(low_residuals$price_log),2)),
+                 Log_Mean_Rent=c(round(mean(high_residuals$price_log), 2), round(mean(low_residuals$price_log),2)),
                  
                  Mean_Rent=c(round(mean(high_residuals$price), 2), round(mean(low_residuals$price),2)))
 
@@ -187,27 +185,7 @@ formattable(descriptives_residuals, list(
 ```
 
 ```{r}
-
-m0 <- lm(price ~ mean_rent +
-           distance +
-           accommodates + 
-           review_scores_rating +
-           review_scores_cleanliness +
-           review_scores_location +
-           review_scores_value +
-           beds +
-           `amen_Family/kid_friendly` +
-           amen_TV +
-           amen_Elevator_in_building +
-           amen_Dryer +
-           amen_Kitchen +
-           amen_Washer +
-           amen_Lock_on_bedroom_door +
-           instant_bookable +
-           cancellation_policy,
-         data = data_short)
-
-m1 <- lm(log10(price) ~ mean_rent +
+m1 <- lm(price_log ~ mean_rent +
                           distance +
                           accommodates + 
                           review_scores_rating +
@@ -225,7 +203,7 @@ m1 <- lm(log10(price) ~ mean_rent +
                           cancellation_policy,
          data = data_short)
 
-m2 <- lm(log10(price) ~ mean_rent +
+m2 <- lm(price_log ~ mean_rent +
            distance +
            accommodates + 
            review_scores_rating +
@@ -244,7 +222,7 @@ stargazer(list(m1,m2), type = "text")
 As our dependent variable had to be transformed to it's logarithmic version, a log-linear regression model is used to explain the effect of the independent variables on the dependent variable. Some of the amendities had a negative impact on the price, which is conterintuitive. As the effects are small and likely to be caused by random noise, such variables are excluded. Additionally, only variables that are significant for the regression are kept in the model:
 
 $$ y =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(accomodates) + \beta_4(review\_scores\_rating) + \beta_5(review\_scores\_cleanliness) + \beta_6(review\_scores\_location) + \beta_7(TV) + \beta_8(elevator) + \beta_9(dryer) + u$$
-42 percent of the variation of the observations can be explained with the presented regression model. The standard error of the model in absolute currency is approximately 1.36 GBP off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the coefficient value.The y-intercept is located at 9.1411 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points y changes if $$x_i$$ changes by one unit. For example, for every additional person a room can accomodate, y rises by 6.6 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and amenities like the existence of a TV, elevator and dryer have the largest postive effects on the price of a room. The review scores of value had to be taken out of the regression because the inherint endogenity problem: Price is a large factor in determining the review of a guest regarding the price for value. Interestingly, the effect of distance is small and negative. Firstly, this impies that distance to city center is not the best measure to account for geographic differences. Secondly, concurrence in the city center could be responsible for the negativity: With a rising amount of rooms available, prices are under pressure.
+41.8 percent of the variation of the observations can be explained with the presented regression model. The standard error of the model in absolute currency is approximately 1.36 GBP off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model.The y-intercept is located at 6.88 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points y changes if $$x_i$$ changes by one unit. For example, for every additional person a room can accomodate, y rises by 6.8 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and amenities like the existence of a TV, elevator and dryer have the largest postive effects on the price of a room. The review scores of value had to be taken out of the regression because the inherint endogenity problem: Price is a large factor in determining the review of a guest regarding the price for value. Interestingly, the effect of distance is small and negative. Firstly, this impies that distance to city center is not the best measure to account for geographic differences. Secondly, concurrence in the city center could be responsible for the negativity: With a rising amount of rooms available, prices are under pressure.
 
 
 •	Model 0: With “mean rent of the area (by zip)”, “distance to city center”, “accommodates”, “review scores rating”, “cleanliness review scores ”, “location review scores”, “value review scores”, “beds”, “Family/kid friendly”, “TV”, “elevator in building”, “dryer”, “kitchen”, “washer”, “lock on bedroom door”, “instant bookable” as “cancellation policy” independent variables, “price” as dependent variable in the model, we got adjusted R-squared equal to 34.7%, which means that 34.7% of the Airbnb price can be explained in this model. The intercept of -42.20 tells us what the price will be when all other factors are zero. This number is negative and could not give further information unless combined with other variables.
