@@ -124,7 +124,7 @@ formattable(descriptives_rating, list(
 ```
 
 ```{r}
-m2 <- lm(log10(price) ~ mean_rent +
+m2 <- lm(price_log ~ mean_rent +
            distance +
            accommodates + 
            review_scores_rating +
