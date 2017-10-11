@@ -94,7 +94,6 @@ m1 <- lm(log10(price) ~ mean_rent +
                           review_scores_rating +
                           review_scores_cleanliness +
                           review_scores_location +
-                          review_scores_value +
                           beds +
                           `amen_Family/kid_friendly` +
                           amen_TV +
@@ -115,7 +114,7 @@ m2 <- lm(log10(price) ~ mean_rent +
            review_scores_rating +
            review_scores_cleanliness +
            review_scores_location +
-           review_scores_value +
+           beds +
            amen_TV +
            amen_Elevator_in_building +
            amen_Dryer +
@@ -125,7 +124,55 @@ m2 <- lm(log10(price) ~ mean_rent +
 
 summary(m2)
 
-stargazer(list(m0,m1,m2), type = "text")
+m3 <- lm(price ~ mean_rent +
+           distance +
+           accommodates + 
+           review_scores_rating +
+           review_scores_cleanliness +
+           review_scores_location +
+           beds +
+           `amen_Family/kid_friendly` +
+           amen_TV +
+           amen_Elevator_in_building +
+           amen_Kitchen +
+           amen_Washer +
+           amen_Lock_on_bedroom_door +
+           instant_bookable +
+           cancellation_policy,
+         data = data_short)
+
+summary(m3)
+
+m4 <- lm(log10(price) ~ mean_rent +
+           distance +
+           accommodates + 
+           review_scores_rating +
+           review_scores_cleanliness +
+           review_scores_location +
+           amen_TV +
+           amen_Elevator_in_building +
+           amen_Dryer,
+           data = data_short)
+
+summary(m4)
+
+m5 <- lm(price ~ mean_rent +
+           distance +
+           accommodates + 
+           review_scores_rating +
+           review_scores_cleanliness +
+           review_scores_location +
+           amen_TV +
+           amen_Elevator_in_building +
+           amen_Dryer,
+           data = data_short)
+
+summary(m5)
+
+library(stargazer)
+stargazer(list(m0,m1,m2,m3), type = "text")
+stargazer(list(m4, m5), type = "text")
+
 ```
 
 #Interpretation
@@ -137,7 +184,7 @@ stargazer(list(m0,m1,m2), type = "text")
 •	Review scores of 4 different dimension are all significant at 1% level. In comparison, review scores for location have the biggest influence that for every 1 more score in location lead to 3.77 pounds higher in Airbnb price. Review scores for cleanliness comes the second that 1 more score can cause 1.88 pounds higher in Airbnb price. The rating review score has relatively little impact on the price that 1 more score in the overall rating only cause 0.37 pounds higher in the price. The negative estimate of value review scores implies that xxxxxx.
 •	Number of beds is not significant in the model. 
 •	Among amenities provided by the host, “Family/kid friendly” and “kitchen” are not significant in the model, which can be explained that xxxx and Airbnb are most popular among travelers or those temporary stay, people may doesn’t care about making food on their own and eat out instead. The estimate of TV tells us that if an Airbnb provides TV, the price will be 6.82 pounds higher. The estimate of elevator in building implies that the Airbnb with elevator leads to 1.79 pounds higher in the price. Dryers are popular and highly demanded as well that the if an Airbnb has dryer, its price is 4.37 pounds higher than others. Washer has a negative impact on price xxxxx, lock on bed
-#review_scores_value, washer, lock on bedroom door, instant bookable, cancellation policy
+#kitchen, review_scores_value, washer, lock on bedroom door, instant bookable, cancellation policy
 
 ----------------------------------Above--------------------
 
