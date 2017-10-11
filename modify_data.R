@@ -23,11 +23,11 @@ data_short <- filter(data_short, data_short$number_of_reviews >= 3 &
                                  data_short$room_type == "Private room" &
                                  data_short$cancellation_policy != "super_strict_30")
 
-## Transform price from string to double and mutate log10(price)
+## Transform price from string to double and mutate log(price)
 
 data_short$price <- as.double(substr(paste(data_short$price), 2, 500))
 data_short <- data_short %>% filter(!is.na(price))
-data_short <- data_short %>% mutate(price_log = log10(price))
+data_short <- data_short %>% mutate(price_log = log(price))
 
 ## Mutate Zipcode as string
 
