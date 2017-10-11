@@ -19,7 +19,7 @@ Due to the scope of this assignment we were not able to address every issue with
 The price of an AirBnB is affected by a large number of factors. We built a model that includes some of them, but it was not feasible to include data concerning every single possible determinant. As a result, our model likely suffers from omitted variable bias. It under- or overestimates the effect of some of the existing factors to compensate for the missing information, making our model less reliable. Our dataset doesn't contain several important variables, such as the size of the room, the proximity of the flat to a tube station, the age of the flat or the quality of the equipment and furniture in the flat.
 
 ### Multicollinearity
-Some of the independent variables in our model are also correlated. For example, consider the correlation of the review score for location and the distance from the city center. 
+Some of the independent variables in our model are also correlated. For example, consider the correlation of the review score for location and the distance from the city center.
 
 ### Sensitivity to outliers
 
@@ -37,6 +37,9 @@ ggplot(data = data_short, aes(x = distance, y = price)) + geom_smooth()
 
 By putting all properties into one model, we ignore the fact that there might be different profiles of properties and for each profile, different characteristics might be relatively more important. Perhaps there is a set of properties that are popular with students coming to London for graduate job interviews, who would see location close to the financial centers and low price as important factors. And, perhaps, different types of properties are popular with middle-aged tourists - then the proximity to the popular sights and the level of comfort provided might matter more. If we divided our properties into clusters which share similar characteristics, and then ran a regression analysis for each cluster, we might get a more accurate model for each cluster.
 
+### Multicollinearity
+
+Some of the independent variables in our model are also correlated. For example, consider the correlation of the review score for location and the distance from the city center.
 
 ```{r}
 cor(data_short$amen_Washer, data_short$amen_Dryer)

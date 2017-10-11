@@ -10,20 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ###USED PACKAGES!!!###
 
 ```{r}
-install.packages("formattable")
-install.packages("knitr")
-install.packages("ggplot2")
-install.packages("dplyr")
-install.packages("nortest")
-```
-
-```{r}
 library(formattable) #see explanation here: https://cran.r-project.org/web/packages/formattable/formattable.pdf
 library(dplyr)
 library(knitr)
 library(ggplot2)
 library(nortest)
+library(car)
+library(texreg)
 ```
+
+
 ###I.Introduction###
 Moving to a new city on a tight budget is challenging. Especially, a metropolis like London have high rents and a competitive market that makes it difficult to find accommodation at a reasonable price with just the attributes that you are looking for. Sharing economy services like AirBnB have faciliated the search for a nice room rented out by private agent. The rooms and apartments available are furnished for the user to settle right in. But how do you know if the price you are paying for your flat is acutally a fair price? Profit of both hosts and the platform itself have skyrocketed in the past years. Entering profits in 2016, AirBnB has achieved the goal of becoming the biggest player in the market.  It is certain that profit comes from the user that is paying both the fee of the platform and the profit margin of the host out of his own pocket. If you are on a tight budget yourself you want to pick a price that is market average with the attributes important to you. This paper aims at creating a model to forecast the price a user pay will pay per person per night for an AirBnB matching his requirements to faciliate the check whether the price of the apartment is indeed the fair price. 
 
@@ -32,15 +28,15 @@ Moving to a new city on a tight budget is challenging. Especially, a metropolis 
 ###III. Descriptive Statistics###
 
 ##1. Price##
-The most important variable of the analysis is price. In order to make the data for the different ads comparable, the price is calculated as price per night per person, using the variable 'guests included'. Starting at a minum of \$8 and ending at a maximum of \$590 per night per person the price has a wide distribution around it's mean of \$50 with a standard diviation of \$26. In the density plot below, it becomes apparent that a normal distribution of the price is unlikely. Upon testing the hypothesis with the commonly used Anderson-Darling normality test this theory is approved.
+The most important variable of the analysis is price. In the analysis, the total price per night was used. Starting at a minum of \$8 and ending at a maximum of \$590 per night per person, the price has a wide distribution around it's mean of \$50 with a standard diviation of \$27. In the density plot below, it becomes clear that rooms for more than \$150 per night are very uncommon. The distribution of price per night is unlikely to be normally distributed but because of the high number of observations the distribution may be approximated by the latter.
 ```{r}
 #This code creates a nice looking table! Just change the name and content of the columns! I left the structure this way for tables with more than one row!
 descriptives_price <- data.frame(
-                 Name=c("Price per Person"),
-                 Minimum=c(min(data_short$price_pp)),
-                 Maximum=c(max(data_short$price_pp)),
-                 Standard_Diviation=c(round(sd(data_short$price_pp))),
-                 Mean=c(round(mean(data_short$price_pp))))
+                 Name=c("Price per Night"),
+                 Minimum=c(min(data_short$price)),
+                 Maximum=c(max(data_short$price)),
+                 Standard_Diviation=c(round(sd(data_short$price))),
+                 Mean=c(round(mean(data_short$price))))
 
 formattable(descriptives_price, list(
   Name=formatter(
@@ -51,18 +47,18 @@ formattable(descriptives_price, list(
 #This code plots the price - I filtered it for price <150 and added a horizontal line at the mean
 data_short %>%
   filter(price <= 150) %>%
-  ggplot(aes(x = price_pp)) + 
+  ggplot(aes(x = price)) + 
   geom_density() +
-  labs(x = "PRICE PER PERSON", y = "DENSITY") + 
+  labs(x = "PRICE PER NIGHT", y = "DENSITY") + 
   theme_minimal() +
-  geom_vline(xintercept = 27, col = "red")
+  geom_vline(xintercept = mean(data_short$price), col = "red")
 
 #Our data is not (!) normally distributed. Be aware while testing. 
 #Refer to https://www.isixsigma.com/tools-templates/normality/dealing-non-normal-data-strategies-and-tools/ for further information and use the right tools!
 ad.test(data_short$price)
 
 #This code cuts the variable price so we can plot it better for later analysis:
-data_short$price_cut<-cut(data_short$price_pp, seq(0, 150, 10), labels = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", "101-110", "111-120", "121-130", "131-140", "141-150"))
+data_short$price_cut<-cut(data_short$price, seq(0, 100, 10), labels = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100"))
 
 ```
 
@@ -71,9 +67,7 @@ data_short$price_cut<-cut(data_short$price_pp, seq(0, 150, 10), labels = c("0-10
 Additionally to the written reviews, guests can give their hosts star-ratings on the following parameters: Overall experience, accuracy, cleanliness, communication, check in, location and value. Overall experience relates to the general impression of the guest and is only calculated for ads with at least three reviews. Accuracy asks how well the ad represented the real properties of the apartment. Cleanliness accounts for tidyness of the flat. Check in and communication both are service-based: Was communication with the host before and during the stay sufficient and was the check in process smooth or difficult? The location is evaluated based on security, comfort and attractiveness of the neighbourhood. Finally, value is a subjective measure to define whether the guests believe that the apartment is worth the price paid - an interesting measure for our analysis. 
 [see @AirBnB Inc., How do star ratings work?, https://de.airbnb.com/help/article/1257/how-do-star-ratings-work]
 
-While the guest gives his ratings on a one-to-five-star scale, the data set transforms this data to a rating from 1 to 10, for the overall rating from 0 to 100. In the table below, the average of reviews is very high: At either 9 or 10 for the subrating scores and at 92 for the overall score. Reviews start at values 2 or 4 for the subcategories and 20 for the overall rating. This means, that ads with good ratings are overrepresented suggesting ads with bad reviews will be unlikely to be booked and, therefore, removed from the website. {search for academic paper to prove statement!} As the overall score is individually picked, different subcategories have different effects on the overall rating. Overall score is only moderately correlated to location, communication and cleanliness. Accuracy, check in and value are strongly correlated to the points received in overall rating. Transferring these findings to the analysis implies a higher impact of those  variables on the model and shows the necessity to analyse both subcategories and overall rating score as they are given independently. The relation between the different rating scores and price is relatively weak. For none of the categories there is even a weak correlation to price. 
-
-[see bla bla]
+While the guest gives his ratings on a one-to-five-star scale, the data set transforms this data to a rating from 1 to 10, for the overall rating from 0 to 100. In the table below, the average of reviews is very high: At either 9 or 10 for the subrating scores and at 92 for the overall score. Reviews start at values 2 or 4 for the subcategories and 20 for the overall rating. This implies that ads with good ratings are overrepresented suggesting ads with bad reviews will be unlikely to be booked and, therefore, removed from the website.  As the overall score is individually picked, different subcategories have different effects on the overall rating. Overall score is only moderately correlated to location, communication and cleanliness. Accuracy, check in and value are strongly correlated to the points received in overall rating. Transferring these findings to the analysis implies a higher impact of those  variables on the model and shows the necessity to analyse both subcategories and overall rating score as they are given independently. The relation between the different rating scores and price is relatively weak. Except for location, none of the categories there have even a weak correlation to price. 
 
 ```{r}
 #This code creates a nice looking table! Just change the name and content of the columns!
@@ -105,8 +99,8 @@ descriptives_rating <- data.frame(
                         round(mean(data_short$review_scores_value)),
                         round(mean(data_short$review_scores_rating))),
                  
-                 Correlation_Rating=c(round(cor(data_short$review_scores_rating, data_short$review_scores_accuracy, 
-                                                use = "complete.obs"),2),
+                 Correlation_Rating=
+                   c(round(cor(data_short$review_scores_rating, data_short$review_scores_accuracy, use = "complete.obs"),2),
                                round(cor(data_short$review_scores_rating, data_short$review_scores_cleanliness, use = "complete.obs"),2),
                                round(cor(data_short$review_scores_rating, data_short$review_scores_checkin, use = "complete.obs"),2),
                                round(cor(data_short$review_scores_rating, data_short$review_scores_communication, use = "complete.obs"),2),
@@ -114,13 +108,13 @@ descriptives_rating <- data.frame(
                                round(cor(data_short$review_scores_rating, data_short$review_scores_value, use = "complete.obs"),2),
                                1),
                  
-                 Correlation_Price=c(round(cor(data_short$price_pp, data_short$review_scores_accuracy, use = "complete.obs"),2),
-                               round(cor(data_short$price_pp, data_short$review_scores_cleanliness, use = "complete.obs"),2),
-                               round(cor(data_short$price_pp, data_short$review_scores_checkin, use = "complete.obs"),2),
-                               round(cor(data_short$price_pp, data_short$review_scores_communication, use = "complete.obs"),2),
-                               round(cor(data_short$price_pp, data_short$review_scores_location, use = "complete.obs"),2),
-                               round(cor(data_short$price_pp, data_short$review_scores_value, use = "complete.obs"),2),
-                               round(cor(data_short$price_pp, data_short$review_scores_rating, use = "complete.obs"),2)))
+                 Correlation_Price=c(round(cor(data_short$price, data_short$review_scores_accuracy, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_cleanliness, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_checkin, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_communication, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_location, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_value, use = "complete.obs"),2),
+                               round(cor(data_short$price_log, data_short$review_scores_rating, use = "complete.obs"),2)))
 
 formattable(descriptives_rating, list(
   Name=formatter(
@@ -128,3 +122,144 @@ formattable(descriptives_rating, list(
     style = x ~ ifelse(x == "Overall", 
                        style(font.weight = "bold"), NA))))
 ```
+
+```{r}
+m2 <- lm(log10(price) ~ mean_rent +
+           distance +
+           accommodates + 
+           review_scores_rating +
+           review_scores_cleanliness +
+           review_scores_location +
+           review_scores_value +
+           amen_TV +
+           amen_Elevator_in_building +
+           amen_Dryer +
+           amen_Washer +
+           amen_Lock_on_bedroom_door,
+         data = data_short)
+
+summary(m2)
+```
+#IV. Regression
+
+## 2. Fitting the model
+Upon testing for multicollinearity, strong correlations between the explanatory variables become clear. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually a VIF greater than 5 is considered critical to the model results. None of the used variables reaches that border value. The Durbin-Watson-Test further defines that the error values are uncorrelated, as visible in the plot of residuals against predicted values. 
+
+A short exploration of the residuals shows that with rising prices, the residuals increase. This implies that our model is worse in predicting the more expensive rooms as the factors chosen do not fully explain the difference in price. The relation between residuals and prices may be explained by a factor the model could not quantify: The attractiveness of a house or flat. As that attractiveness differs from building to building and sometimes even within a building, it is impossible to predict the price of an apartment that exceeds expectations set by the base explanatory variables used in the regression. 
+```{r}
+vif(m2)
+durbinWatsonTest(m2)
+data_short$predicted <- predict(m2)
+data_short$residuals <- residuals(m2)
+ggplot(data = data_short, aes(x = predicted, y= residuals)) +
+  geom_point(col = "grey", alpha = 0.4) +
+  geom_smooth(method = "lm", se = FALSE, col ="darkred") +
+  theme_classic()
+
+ggplot(data = data_short, aes(x = log10(price), y = predicted)) +
+  geom_point(col = "grey", alpha = 0.4) +
+  geom_smooth(method = "lm", se = FALSE, col ="darkred") +
+  theme_classic()
+```
+```{r}
+
+high_residuals <- data_short %>%
+  select(price, price_log, residuals) %>%
+  filter(residuals > 0.3)
+
+low_residuals <- data_short %>%
+  select(price, price_log, residuals) %>%
+  filter(residuals <= 0.3)
+
+descriptives_residuals <- data.frame(
+                 Name=c("Data with high residuals", "Data with low residuals"),
+                 
+                 Mean_Log_Rent=c(round(mean(high_residuals$price_log), 2), round(mean(low_residuals$price_log),2)),
+                 
+                 Mean_Rent=c(round(mean(high_residuals$price), 2), round(mean(low_residuals$price),2)))
+
+formattable(descriptives_residuals, list(
+  Name=formatter(
+    "span",
+    style = x ~ ifelse(x == "Overall", 
+                       style(font.weight = "bold"), NA))))
+
+```
+
+```{r}
+
+m0 <- lm(price ~ mean_rent +
+           distance +
+           accommodates + 
+           review_scores_rating +
+           review_scores_cleanliness +
+           review_scores_location +
+           review_scores_value +
+           beds +
+           `amen_Family/kid_friendly` +
+           amen_TV +
+           amen_Elevator_in_building +
+           amen_Dryer +
+           amen_Kitchen +
+           amen_Washer +
+           amen_Lock_on_bedroom_door +
+           instant_bookable +
+           cancellation_policy,
+         data = data_short)
+
+m1 <- lm(log10(price) ~ mean_rent +
+                          distance +
+                          accommodates + 
+                          review_scores_rating +
+                          review_scores_cleanliness +
+                          review_scores_location +
+                          beds +
+                          `amen_Family/kid_friendly` +
+                          amen_TV +
+                          amen_Elevator_in_building +
+                          amen_Dryer +
+                          amen_Kitchen +
+                          amen_Washer +
+                          amen_Lock_on_bedroom_door +
+                          instant_bookable +
+                          cancellation_policy,
+         data = data_short)
+
+m2 <- lm(log10(price) ~ mean_rent +
+           distance +
+           accommodates + 
+           review_scores_rating +
+           review_scores_cleanliness +
+           review_scores_location +
+           amen_TV +
+           amen_Elevator_in_building +
+           amen_Dryer,
+         data = data_short)
+
+stargazer(list(m1,m2), type = "text")
+```
+
+#Interpretation - Correction
+
+As our dependent variable had to be transformed to it's logarithmic version, a log-linear regression model is used to explain the effect of the independent variables on the dependent variable. Some of the amendities had a negative impact on the price, which is conterintuitive. As the effects are small and likely to be caused by random noise, such variables are excluded. Additionally, only variables that are significant for the regression are kept in the model:
+
+$$ y =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(accomodates) + \beta_4(review\_scores\_rating) + \beta_5(review\_scores\_cleanliness) + \beta_6(review\_scores\_location) + \beta_7(TV) + \beta_8(elevator) + \beta_9(dryer) + u$$
+42 percent of the variation of the observations can be explained with the presented regression model. Even though residuals are high, the F-statistic is highly significant and the model provides a far better explanation than just the coefficient value.The y-intercept is located at 9.1411 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points y changes if $$x_i$$ changes by one unit. For example, for every additional person a room can accomodate, y rises by 6.7 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and amenities like the existence of a TV, elevator and dryer have the largest postive effects on the price of a room. The review scores of value had to be taken out of the regression because the inherint endogenity problem: Price is a large factor in determining the review of a guest regarding the price for value. Interestingly, the effect of distance is small and negative. Firstly, this impies that distance to city center is not the best measure to account for geographic differences. Secondly, concurrence in the city center could be responsible for the negativity: With a rising amount of rooms available, prices are under pressure. Luxur
+
+
+•	Model 0: With “mean rent of the area (by zip)”, “distance to city center”, “accommodates”, “review scores rating”, “cleanliness review scores ”, “location review scores”, “value review scores”, “beds”, “Family/kid friendly”, “TV”, “elevator in building”, “dryer”, “kitchen”, “washer”, “lock on bedroom door”, “instant bookable” as “cancellation policy” independent variables, “price” as dependent variable in the model, we got adjusted R-squared equal to 34.7%, which means that 34.7% of the Airbnb price can be explained in this model. The intercept of -42.20 tells us what the price will be when all other factors are zero. This number is negative and could not give further information unless combined with other variables.
+•	Mean rent of the area (by zip code) has a significant effect on price. We can see that 1 pound higher in mean rent in the area will raise 0.47 pound in Airbnb price.
+•	Distance to the city center has a negative influence on price that for every extra 1 km away from the city center, the price will decrease 0.60 pound. 
+•	The estimate of accommodates tells us that Airbnb price increase 10 pounds if it can accommodate 1 more person.
+•	Review scores of 4 different dimension are all significant at 1% level. In comparison, review scores for location have the biggest influence that for every 1 more score in location lead to 3.77 pounds higher in Airbnb price. Review scores for cleanliness comes the second that 1 more score can cause 1.88 pounds higher in Airbnb price. The rating review score has relatively little impact on the price that 1 more score in the overall rating only cause 0.37 pounds higher in the price. The negative estimate of value review scores implies that xxxxxx.
+•	Number of beds is not significant in the model. 
+•	Among amenities provided by the host, “Family/kid friendly” and “kitchen” are not significant in the model, which can be explained that xxxx and Airbnb are most popular among travelers or those temporary stay, people may doesn’t care about making food on their own and eat out instead. The estimate of TV tells us that if an Airbnb provides TV, the price will be 6.82 pounds higher. The estimate of elevator in building implies that the Airbnb with elevator leads to 1.79 pounds higher in the price. Dryers are popular and highly demanded as well that the if an Airbnb has dryer, its price is 4.37 pounds higher than others. Washer has a negative impact on price xxxxx, lock on bed
+#review_scores_value, washer, lock on bedroom door, instant bookable, cancellation policy
+
+----------------------------------Above--------------------
+
+
+
+
+
+
