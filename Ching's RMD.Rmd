@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
+arrange(data_remove_amen,desc(number))
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -17,7 +17,7 @@ amen_name<-colnames(amen)
 number<-colMeans(amen[, (1:53)], na.rm=TRUE)*100
 data<-as.data.frame(amen_name)
 data$number=number
-data_remove_amen<-data[-c(6,36,45,51),]
+data_remove_amen<-data[-c(17,18,21,36,45,51),]
 arrange(data_remove_amen,desc(number))
 
 ```
