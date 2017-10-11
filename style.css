@@ -70,12 +70,18 @@ body #location > .table{
   margin-left: 15px;
 }
 
+body #accomodates-and-beds > .table{
+  width: 50%;
+  float: right;
+  margin-left: 15px;
+}
+
 body #location > .figure > img{
   display: block;
   margin: auto;
 }
 
-body #property-characteristics-and-amenities > .figure{
+body #amenities > .figure{
   width: 55%;
   float: left;
   margin-right: 15px;
