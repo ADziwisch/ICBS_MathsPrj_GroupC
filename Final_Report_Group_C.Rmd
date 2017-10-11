@@ -99,7 +99,7 @@ colnames(t1_summary) <- c("P-Value", "Conf Low", "Estimate", "Conf High")
 formattable(t1_summary, caption = "Table 1: Summary of Price Variable")
 ```
 
-When choosing an AirBnB in London, location might be an important factor as for many users living close to the city centre is preferable. In our model, we use the distance to the touristic city centre - Picadilly Circus - as a measurement of the attractiveness of the AirBnB's location. It was calculated by using the Haversine formula and the geographic coordinates of Picadilly Circus (Longitude: -0.133869, Latitude: 51.510067).
+When choosing an AirBnB in London, location might be an important factor as for many users living close to the city centre is preferable. In our model, we use the distance to the touristic city centre - Picadilly Circus - as a measurement of the attractiveness of the AirBnB's location. It was calculated by using the Haversine formula (see @Reid_2011) and the geographic coordinates of Picadilly Circus (Longitude: -0.133869, Latitude: 51.510067).
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, fig.cap="Figure 3: Mapping Rent Prices vs. Airbnb Prices"}
 cuts <- data.frame(price_log = data_short$price_log, dist_bin = cut(data_short$distance, 10))
