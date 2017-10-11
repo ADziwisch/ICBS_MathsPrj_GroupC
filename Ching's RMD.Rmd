@@ -8,13 +8,24 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-arrange(data_remove_amen,desc(number))
+
+amen_Air_conditioning	4.01709402			
+amen_Self_Check-In	3.76068376			
+amen_Gym	3.11965812			
+amen_Lockbox
+amen_Suitable_for_events	2.29344729			
+amen_Private_entrance	1.05413105			
+amen_Private_living_room	1.03988604			
+amen_Pool	0.52706553			
+amen_Doorman_Entry
 ```{r}
 library(dplyr)
+library(plyr)
 library(ggplot2)
 amen<-select(data_short,contains("amen_"))
-amen_name<-colnames(amen)
-number<-colMeans(amen[, (1:53)], na.rm=TRUE)*100
+amen1<-rename(amen,c("amen_Internet"="Internet","amen_Wireless_Internet"="Wifi","amen_Heating"="Heating","amen_Kitchen"="Kitchen","amen_Essentials"="Essentials","amen_Washer"="Washer","amen_Smoke_detector"="Smoke_detector","amen_Shampoo"="Shampoo","amen_Hangers"="Hangers","amen_Iron"="Iron","amen_TV"="TV","amen_Hair_dryer"="Hair_dryer","amen_Carbon_monoxide_detector"="Carbon_monoxide_detector","amen_Laptop_friendly_workspace"="Laptop_friendly","amen_Family/kid_friendly"="Family_friendly","amen_Buzzer/wireless_intercom"="Buzzer_wireless","amen_Dryer"="Dryer","amen_First_aid_kit"="First_aid_kit","amen_Elevator_in_building"="Elevator_in_building","amen_Fire_extinguisher"="Fire_extinguisher","amen_24-hour_check-in"="24_hour_check_in","amen_Free_parking_on_premises"="Free_parking","amen_Breakfast"="Breakfast","amen_Cable_TV"="Cable_TV","amen_Lock_on_bedroom_door"="Lock_on_bedroom_door","amen_Safety_card"="Safety_card","amen_Smoking_allowed"="Smoking_allowed","amen_Pets_live_on_this_property"="Pets_live_here","amen_Hot_tub"="Hot_tub","amen_Wheelchair_accessible"="Wheelchair_accessible","amen_Pets_allowed"="Pets_allowed","amen_Indoor_fireplace"="Indoor_fireplace","amen_Doorman"="Doorman","amen_Keypad"="Keypad","amen_Free_parking_on_street"="Free_parking_on_street","amen_Paid_parking_off_premises"="Paid_parking","amen_Smartlock"="Smartlock","amen_Washer_/_Dryer"="Washer_Dryer","amen_Air_conditioning"="Air_con","amen_Self_Check-In"="Self_Check-In","amen_Gym"="Gym","amen_Lockbox"="Lockbox","amen_Suitable_for_events"="Suitable_for_events","amen_Private_entrance"="Private_entrance","amen_Private_living_room"="Private_living_room","amen_Pool"="Pool","amen_Doorman_Entry"="Doorman_Entry"))
+amen_name<-colnames(amen1)
+number<-colMeans(amen1[, (1:53)], na.rm=TRUE)*100
 data<-as.data.frame(amen_name)
 data$number=number
 data_remove_amen<-data[-c(17,18,21,36,45,51),]
@@ -38,9 +49,9 @@ rating<-list("number_of_reviews","review_scores_rating","review_scores_value")
 rating1<-unlist(rating)
 amen_list<-list(amen_name)
 amen_list1<-unlist(amen_list)
-data.cor<-select(data_short,contains("amen_"),price,number_of_reviews,review_scores_rating,review_scores_value,review_scores_cleanliness)%>%filter(!is.na(number_of_reviews),!is.na(review_scores_rating),!is.na(review_scores_value),!is.na(review_scores_cleanliness))
-data_amen1<-rename(data.cor,c("amen_24-hour_check-in"="amen_24_hour_check_in","amen_Washer_/_Dryer"="amen_Washer_Dryer","amen_Family/kid_friendly"="amen_Family_kid_friendly","amen_Buzzer/wireless_intercom"="amen_Buzzer_wireless_intercom","amen_Cat(s)"="amen_Cat","amen_Dog(s)"="amen_Dog","amen_Other_pet(s)"="amen_Other_pet","amen_Self_Check-In"="amen_Self_Check_In"))
-data_amen<-filter(data_amen1,price<100)
+data.cor<-select(data_short,contains("amen_"),price,price_log,number_of_reviews,review_scores_rating,review_scores_value,review_scores_cleanliness)%>%filter(!is.na(number_of_reviews),!is.na(review_scores_rating),!is.na(review_scores_value),!is.na(review_scores_cleanliness))
+data_amen<-rename(data.cor,c("amen_Internet"="Internet","amen_Wireless_Internet"="Wifi","amen_Heating"="Heating","amen_Kitchen"="Kitchen","amen_Essentials"="Essentials","amen_Washer"="Washer","amen_Smoke_detector"="Smoke_detector","amen_Shampoo"="Shampoo","amen_Hangers"="Hangers","amen_Iron"="Iron","amen_TV"="TV","amen_Hair_dryer"="Hair_dryer","amen_Carbon_monoxide_detector"="Carbon_monoxide_detector","amen_Laptop_friendly_workspace"="Laptop_friendly_workspace","amen_Family/kid_friendly"="Family_kid_friendly","amen_Buzzer/wireless_intercom"="Buzzer_wireless_intercom","amen_Dryer"="Dryer","amen_First_aid_kit"="First_aid_kit","amen_Elevator_in_building"="Elevator_in_building","amen_Fire_extinguisher"="Fire_extinguisher","amen_24-hour_check-in"="24_hour_check_in","amen_Free_parking_on_premises"="Free_parking_on_premises","amen_Breakfast"="Breakfast","amen_Cable_TV"="Cable_TV","amen_Lock_on_bedroom_door"="Lock_on_bedroom_door","amen_Safety_card"="Safety_card","amen_Smoking_allowed"="Smoking_allowed","amen_Pets_live_on_this_property"="Pets_live_on_this_property","amen_Hot_tub"="Hot_tub","amen_Wheelchair_accessible"="Wheelchair_accessible","amen_Pets_allowed"="Pets_allowed","amen_Indoor_fireplace"="Indoor_fireplace","amen_Doorman"="Doorman","amen_Keypad"="Keypad","amen_Free_parking_on_street"="Free_parking_on_street","amen_Paid_parking_off_premises"="Paid_parking_off_premises","amen_Smartlock"="Smartlock","amen_Washer_/_Dryer"="Washer_Dryer","amen_Air_conditioning"="Air_con","amen_Self_Check-In"="Self_Check-In","amen_Gym"="Gym","amen_Lockbox"="Lockbox","amen_Suitable_for_events"="Suitable_for_events","amen_Private_entrance"="Private_entrance","amen_Private_living_room"="Private_living_room","amen_Pool"="Pool","amen_Doorman_Entry"="Doorman_Entry"))
+data_amen1<-filter(data_amen,price<=150)
 data_amen2<-filter(data_amen1,review_scores_rating>=80)
 data_amen3<-filter(data_amen1,review_scores_value>=8)
 data_amen4<-filter(data_amen1,review_scores_cleanliness>=8)
@@ -49,34 +60,34 @@ data_amen5<-filter(data_amen1,number_of_reviews<=50)
 ```
 #Key ameniteis to influence the price
 
-There are around 49 offers of amenities in the AirBnB in London. Out of 49 amenities offerings, we found 7 amenities may influence the price, including some home essentials such as kitchens, TVs, dryers, and washers, facilities like elevators or whether it’s a family-kid friendly environment as well as whether it provides lock on the bedroom door. The price of the accommodation with TVs, elevators, dryers and washers is higher than those don’t, especially for TV, which may lead to higher overall rating and perceived value from customers (Please refer to the plot between the amenity and rating below. Since most of the ratings are above 80 or 8, we do filter the rooms with rating more than 80 or 8 to see the difference. People tend to rate the room among higher range, mostly above 90 or 9. Therefore, some drop from 10 to 9 should already be significant.)  However, it seems the market doesn’t value those accommodations with family-kid friendly environment and kitchen. Their prices are slightly lower than those without those amenities. Probably, those amenities linked to more work and noisy. Another interesting finding is the room without the lock can may have higher price than others, which may be reasoned that the room with lock may mainly in more unsafe regions.
+There are around 47 offers of amenities in the AirBnB in London. Out of 47 amenities offerings, we found 7 amenities may influence the price, including some home essentials such as kitchens, TVs, dryers, and washers, facilities like elevators or whether it’s a family-kid friendly environment as well as whether it provides lock on the bedroom door. The price of the accommodation with TVs, elevators, dryers and washers is higher than those don’t, especially for TV, which may lead to higher overall rating and perceived value from customers (Please refer to the plot between the amenity and rating below. Since most of the ratings are above 80 or 8, we do filter the rooms with rating more than 80 or 8 to see the difference. People tend to rate the room among higher range, mostly above 90 or 9. Therefore, some drop from 10 to 9 should already be significant.)  However, it seems the market doesn’t value those accommodations with family-kid friendly environment and kitchen. Their prices are slightly lower than those without those amenities. Probably, those amenities linked to more work and noisy. Another interesting finding is the room without the lock can may have higher price than others, which may be reasoned that the room with lock may mainly in more unsafe regions.
 
 
 ```{r}
-ggplot(data_amen,aes(x=amen_Family_kid_friendly,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_TV,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Elevator_in_building,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Dryer,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Kitchen,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Washer,y=price))+geom_boxplot()
-ggplot(data_amen,aes(x=amen_Lock_on_bedroom_door,y=price))+geom_boxplot()
+ggplot(data_amen1,aes(x=Family_kid_friendly,y=price))+geom_boxplot()
+ggplot(data_amen1,aes(x=TV,y=price))+geom_boxplot()
+ggplot(data_amen1,aes(x=Elevator_in_building,y=price))+geom_boxplot()
+ggplot(data_amen1,aes(x=Dryer,y=price))+geom_boxplot()
+ggplot(data_amen1,aes(x=Kitchen,y=price))+geom_boxplot()
+ggplot(data_amen1,aes(x=Washer,y=price))+geom_boxplot()
+ggplot(data_amen1,aes(x=Lock_on_bedroom_door,y=price))+geom_boxplot()
 ```
 
 ```{r}
 
-ggplot(data_amen2,aes(x=amen_TV,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Elevator_in_building,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Family_kid_friendly,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Dryer,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Kitchen,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Washer,y=review_scores_rating))+geom_boxplot()
-ggplot(data_amen2,aes(x=amen_Lock_on_bedroom_door,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=TV,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=Elevator_in_building,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=Family_kid_friendly,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=Dryer,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=Kitchen,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=Washer,y=review_scores_rating))+geom_boxplot()
+ggplot(data_amen2,aes(x=Lock_on_bedroom_door,y=review_scores_rating))+geom_boxplot()
 
 
 ```
 
 ```{r}
-ggplot(data_amen3,aes(x=amen_TV,y=review_scores_value))+geom_boxplot()
+ggplot(data_amen3,aes(x=TV,y=review_scores_value))+geom_boxplot()
 
 ```
 
