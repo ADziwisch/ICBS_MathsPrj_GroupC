@@ -283,7 +283,7 @@ m2 <- lm(log10(price) ~ mean_rent +
 
 
 ## Fitting the model
-Upon testing for multicollinearity, strong correlations between the explanatory variables become clear. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually a VIF greater than 5 is considered critical to the model results. None of the used variables reaches that border value. The Durbin-Watson test shows that the error values are uncorrelated, as visible in the plot of residuals against predicted values. 
+Upon testing for multicollinearity, strong correlations between the explanatory variables become clear. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually a VIF greater than 5 is considered critical to the model results. None of the used variables reaches that border value. The Durbin-Watson test shows that the error values are uncorrelated, as visible in the plot of residuals against predicted values.
 
 A short exploration of the residuals shows that with rising prices, the residuals increase. This implies that our model is worse in predicting the more expensive rooms as the factors chosen do not fully explain the difference in price. The relation between residuals and prices may be explained by a factor the model could not quantify: the attractiveness of the room and the house it is in. As this attractiveness differs across buildings and sometimes even within a building, it is impossible to predict the price of an apartment that exceeds expectations set by the base explanatory variables used in the regression.
 
