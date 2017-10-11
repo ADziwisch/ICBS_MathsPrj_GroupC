@@ -74,7 +74,13 @@ body #location > .figure > img{
   display: block;
   margin: auto;
 }
-  
+
+body #property-characteristics-and-amenities > .figure{
+  width: 55%;
+  float: left;
+  margin-right: 15px;
+}
+
 body .bottom-box{
   height: 75px;
   background: linear-gradient(141deg, rgb(15, 184, 173), rgb(31, 200, 219), rgb(44, 181, 232));
