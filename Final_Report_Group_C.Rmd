@@ -253,10 +253,26 @@ formattable(t_data, caption = "Table 1: Summary of Price Variable")
 
 # Regression model
 
-To be updated by Jingyin
+```{r echo=FALSE, results='asis'}
+m1 <- lm(price_log ~ mean_rent +
+                          distance +
+                          accommodates + 
+                          review_scores_rating +
+                          review_scores_cleanliness +
+                          review_scores_location +
+                          beds +
+                          `amen_Family/kid_friendly` +
+                          amen_TV +
+                          amen_Elevator_in_building +
+                          amen_Dryer +
+                          amen_Kitchen +
+                          amen_Washer +
+                          amen_Lock_on_bedroom_door +
+                          instant_bookable +
+                          cancellation_policy,
+         data = data_short)
 
-```{r}
-m2 <- lm(log10(price) ~ mean_rent +
+m2 <- lm(price_log ~ mean_rent +
            distance +
            accommodates + 
            review_scores_rating +
@@ -264,13 +280,18 @@ m2 <- lm(log10(price) ~ mean_rent +
            review_scores_location +
            amen_TV +
            amen_Elevator_in_building +
-           amen_Dryer +
-           amen_Kitchen +
-           amen_Washer +
-           amen_Lock_on_bedroom_door,
+           amen_Dryer,
          data = data_short)
+
+stargazer(list(m1,m2), type = "html")
 ```
 
+## Interpretation - Correction
+
+As our dependent variable had to be transformed to it's logarithmic version, a log-linear regression model is used to explain the effect of the independent variables on the dependent variable. Some of the amendities had a negative impact on the price, which is conterintuitive. As the effects are small and likely to be caused by random noise, such variables are excluded. Additionally, only variables that are significant for the regression are kept in the model:
+
+$$ ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(accomodates) + \beta_4(review\_scores\_rating) + \beta_5(review\_scores\_cleanliness) + \beta_6(review\_scores\_location) + \beta_7(TV) + \beta_8(elevator) + \beta_9(dryer) + u$$
+41.8 percent of the variation of the observations can be explained with the presented regression model. The standard error of the model in absolute currency is approximately 1.36 GBP off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model.The y-intercept is located at 6.88 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points the price changes if $$x_i$$ changes by one unit. For example, for every additional person a room can accomodate, the price rises by 6.8 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and amenities like the existence of a TV, elevator and dryer have the largest postive effects on the price of a room. The review scores of value had to be taken out of the regression because the inherint endogenity problem: Price is a large factor in determining the review of a guest regarding the price for value. The effect of distance is surprisingly small. This impies that distance to city center is not the best measure to account for geographic differences. 
 
 ## Fitting the model
 Upon testing for multicollinearity, strong correlations between the explanatory variables become clear. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually a VIF greater than 5 is considered critical to the model results. None of the used variables reaches that border value. The Durbin-Watson test shows that the error values are uncorrelated, as visible in the plot of residuals against predicted values.
@@ -343,13 +364,11 @@ ggplot(data = data_short, aes(x = distance, y = price)) + geom_smooth()
 
 By putting all properties into one model, we ignore the fact that there might be different profiles of properties and for each profile, different characteristics might be relatively more important. Perhaps there is a set of properties that are popular with students coming to London for graduate job interviews, who would see location close to the financial centers and low price as important factors. And, perhaps, different types of properties are popular with middle-aged tourists - then the proximity to the popular sights and the level of comfort provided might matter more. If we divided our properties into clusters which share similar characteristics, and then ran a regression analysis for each cluster, we might get a more accurate model for each cluster.
 
-+ <strong>Property Characteristics:</strong> Some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms.
-+ <strong>Amenities:</strong> On top of the characteristics, Airbnb contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV up to a personal doorman or a pool. We introduced dummy variables for 52 different amenities as well as a variable counting the total number of amenities.
-+ <strong>Offering Characteristics:</strong> Lastly some information on the Cancellation Policy or whether the Airbnb is instantly bookable was included.
->>>>>>> 97178597a4d6080cb17ca3a429e7b9a3f32db7f8
+#Conclusion
+
+Despite the fact that the presented model has obvious limitations regarding factors that could not be quantified, it has direct implications for finding a reasonably prices apartment. Many properties important for someone searching for a room, like WIFI and the existence of a proper equipped kitchen, have small effects on the room price, as they are present to most London based apartments. A traveller can therefore expect to have those properties present. Luxury amendities like the presence of an elevator, a TV and a dryer create costs. Depending on the standards of the guest, these can be added if the budget is extended. It is also good advice to check apartments in less attractive neighbourhoods to save money. Regarding cleanliness, a well maintained room and flat will cost more. Looking at these different attributes of an AirBnB add, the user is able to determine whether the price of the apartment is actually fair, which was the aim of this report. As especially high prices could not be explained in the model, a prediction is likely to return a base price rather than a highly attractive room in a good apartment in a nice building. 
 
 
 Furthermore, the Cartesian coordinates were calculated, using the instructions of @Irawan_2014, to plot the data on maps provided by @lovelace2014introduction.
-
 
 # Bibliography
