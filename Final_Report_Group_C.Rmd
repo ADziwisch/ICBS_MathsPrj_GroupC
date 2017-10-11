@@ -86,7 +86,7 @@ map2 <- ggplot() +
 grid.arrange(map1, map2, ncol = 2)
 ```
 
-Mapping the mean rent and the logarithmic AirBnB prices according to their location reveals that those variables are related. Nevertheless, it also becomes clear that there is more to an AirBnB price than just the average rent in the particular neighbourhood.
+Mapping the mean rent and the logarithmically transformed AirBnB price according to their location reveals that those variables are related. Nevertheless, it also becomes clear that there is more to an AirBnB price than just the average rent in the particular neighbourhood.
 
 ## Location
 
