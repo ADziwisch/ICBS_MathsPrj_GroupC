@@ -64,6 +64,17 @@ body #price > .table{
   margin-left: 15px;
 }
 
+body #location > .table{
+  width: 50%;
+  float: right;
+  margin-left: 15px;
+}
+
+body #location > .figure > img{
+  display: block;
+  margin: auto;
+}
+  
 body .bottom-box{
   height: 75px;
   background: linear-gradient(141deg, rgb(15, 184, 173), rgb(31, 200, 219), rgb(44, 181, 232));
