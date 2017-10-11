@@ -107,7 +107,7 @@ cuts <- data.frame(price_log = data_short$price_log, dist_bin = cut(data_short$d
 cuts %>% ggplot() + geom_boxplot(aes(x = dist_bin, y = price_log), fill = "#00E5FFFF", alpha = .5, color = "#333333") + theme_minimal() + coord_flip() + scale_x_discrete(limits = rev(levels(cuts$dist_bin)))
 ```
 
-From the boxplot and correlation test above, it seems that distance to the city center and price are significantly negatively correlated. That means that, statistically speaking, the closer the property is to the city center, the higher the price is.
+From the boxplot and correlation test above, it seems that the distance to the city center and price are significantly negatively correlated. That means that, statistically speaking, the closer the property is to the city center, the higher the price is.
 
 ## Reviews
 
