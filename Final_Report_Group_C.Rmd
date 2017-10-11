@@ -25,6 +25,7 @@ library(formattable)
 library(nortest)
 library(stargazer)
 library(gridExtra)
+library(car)
 
 load("data_short.RData")
 
@@ -261,10 +262,6 @@ Upon testing for multicollinearity, strong correlations between the explanatory 
 A short exploration of the residuals shows that with rising prices, the residuals increase. This implies that our model is worse in predicting the more expensive rooms as the factors chosen do not fully explain the difference in price. The relation between residuals and prices may be explained by a factor the model could not quantify: the attractiveness of the room and the house it is in. As this attractiveness differs across buildings and sometimes even within a building, it is impossible to predict the price of an apartment that exceeds expectations set by the base explanatory variables used in the regression.
 
 ```{r}
-# do this to avoid an error, more info here https://stackoverflow.com/questions/32158177/unable-to-find-an-inherited-method-for-function-vif-for-signature-integer
-detach("package:usdm", unload=TRUE)
-library(car)
-
 vif(m2)
 durbinWatsonTest(m2)
 data_short$predicted <- predict(m2)
