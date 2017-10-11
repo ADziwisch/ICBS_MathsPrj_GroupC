@@ -26,6 +26,7 @@ library(nortest)
 library(stargazer)
 library(gridExtra)
 library(car)
+library(plyr)
 
 load("data_short.RData")
 
@@ -71,6 +72,8 @@ grid.arrange(p1, p2, ncol = 2, widths = c(1.5, 1))
 
 With London being one of the most expensive cities to live, rent prices can be considered a major cost of being a host on AirBnB. Therefore, we would like to observe the relationship between rent and the AirBnB price. However, the initial dataset holds no information on the regular rent price at the location of an Airbnb. Fortunately, a website called “Find Properly” [see @Findproperly_2017]  utilizes the data from Zoopla and provides the rent and selling price for each London region, divided per post code. Using the post code, we were able to map the average weekly rent for 1-bed properties to every AirBnB. The matching was done based on the first half of the post code.
 
+Mapping the mean rent and the logarithmically transformed AirBnB price according to their location reveals that those variables are related. Nevertheless, it also becomes clear that there is more to an AirBnB price than just the average rent in the particular neighbourhood.
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 2: Mapping Rent Prices vs. Airbnb Prices"}
 map1 <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
@@ -86,8 +89,6 @@ map2 <- ggplot() +
 
 grid.arrange(map1, map2, ncol = 2)
 ```
-
-Mapping the mean rent and the logarithmically transformed AirBnB price according to their location reveals that those variables are related. Nevertheless, it also becomes clear that there is more to an AirBnB price than just the average rent in the particular neighbourhood.
 
 ## Location
 
@@ -189,10 +190,14 @@ Running a two-sided correlation, shows a significant and positive linear effect 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=5.5, fig.cap="Figure 3: Mapping Rent Prices vs. Airbnb Prices"}
 amen <- select(data_short, contains("amen_"))
+
+amen<-rename(amen,c("amen_Internet"="Internet","amen_Wireless_Internet"="Wifi","amen_Heating"="Heating","amen_Kitchen"="Kitchen","amen_Essentials"="Essentials","amen_Washer"="Washer","amen_Smoke_detector"="Smoke_detector","amen_Shampoo"="Shampoo","amen_Hangers"="Hangers","amen_Iron"="Iron","amen_TV"="TV","amen_Hair_dryer"="Hair_dryer","amen_Carbon_monoxide_detector"="Carbon_monoxide_detector","amen_Laptop_friendly_workspace"="Laptop_friendly","amen_Family/kid_friendly"="Family_friendly","amen_Buzzer/wireless_intercom"="Buzzer_wireless","amen_Dryer"="Dryer","amen_First_aid_kit"="First_aid_kit","amen_Elevator_in_building"="Elevator_in_building","amen_Fire_extinguisher"="Fire_extinguisher","amen_24-hour_check-in"="24_hour_check_in","amen_Free_parking_on_premises"="Free_parking","amen_Breakfast"="Breakfast","amen_Cable_TV"="Cable_TV","amen_Lock_on_bedroom_door"="Lock_on_bedroom_door","amen_Safety_card"="Safety_card","amen_Smoking_allowed"="Smoking_allowed","amen_Pets_live_on_this_property"="Pets_live_here","amen_Hot_tub"="Hot_tub","amen_Wheelchair_accessible"="Wheelchair_accessible","amen_Pets_allowed"="Pets_allowed","amen_Indoor_fireplace"="Indoor_fireplace","amen_Doorman"="Doorman","amen_Keypad"="Keypad","amen_Free_parking_on_street"="Free_parking_on_street","amen_Paid_parking_off_premises"="Paid_parking","amen_Smartlock"="Smartlock","amen_Washer_/_Dryer"="Washer_Dryer","amen_Air_conditioning"="Air_con","amen_Self_Check-In"="Self_Check-In","amen_Gym"="Gym","amen_Lockbox"="Lockbox","amen_Suitable_for_events"="Suitable_for_events","amen_Private_entrance"="Private_entrance","amen_Private_living_room"="Private_living_room","amen_Pool"="Pool","amen_Doorman_Entry"="Doorman_Entry"))
+
 amen_name <- colnames(amen)
 number <- colMeans(amen[, (1:53)], na.rm=TRUE) * 100
 amen_data <- as.data.frame(amen_name)
 amen_data$number = number
+
 amen_data <- amen_data[-c(6,17,18,21,36,45,51),]
 amen_data <- amen_data %>% filter(number <= 91 & number >= 15)
 amen_data <- arrange(amen_data , desc(number))
@@ -233,35 +238,20 @@ formattable(t_data, caption = "Table 1: Summary of Price Variable")
 In this part, we are going to analyse attributes of the ad. We choose 2 variables that we think may influence the price intuitively, which includes whether it is instant bookable and the cancellation policy. 
 
 To attract more customers, sometimes hosts allow instant book of their properties. In terms of instant book, there are 2 kinds of accommodation. In our dataset, TRUE means guests can book the desired property instantly, while FALSE means they have to discuss their plans with the host and wait for approval before they can book. 
-
-In addition to instant book, hosts also have the right to choose their own cancellation policy. Cancellation policy decides whether or not guests can get refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get full refund if the reservation is cancelled within limited period, mostly 24 hours prior to the check in. If moderate, fees are fully refundable but within a longer time period. Under the circumstances of strict policy, only 50% of fees may be refunded until 1 week prior to check in. 
-(reference and citation may be needed here, url: https://www.airbnb.co.uk/home/cancellation_policies#strict)
+In addition to instant book, hosts also have the right to choose their own cancellation policy. Cancellation policy decides whether or not guests can get refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get full refund if the reservation is cancelled within limited period, mostly 24 hours prior to the check in. If moderate, fees are fully refundable but within a longer time period. Under the circumstances of strict policy, only 50% of fees may be refunded until 1 week prior to check in.
 
 ```{r echo=FALSE}
-t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_log"], 
+t1 <- t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_log"], 
        data_short[data_short[, "instant_bookable"]  == "FALSE", "price_log"])
 
-cor.test(as.numeric(data_short$cancellation_policy), data_short$price_log)
+t2 <- cor.test(as.numeric(data_short$cancellation_policy), data_short$price_log)
+
+t_data <- data.frame(attributes = c("Instant Bookable", "Cancellation Policy"), p_vals = c(signif(t1$p.value, 4), signif(t2$p.value, 4)))
+
+formattable(t_data, caption = "Table 1: Summary of Price Variable")
 ```
 
-Surprisingly, accommondations with strict cancellation policy in general have lower price than others. One possible reason might be that with strict policy, hosts' profits are more secure so that they 
-
-Now we want to analyse if there is any correlation between these 2 variables.
-
-```{r}
-cor.test(as.numeric(data_short$instant_bookable), as.numeric(data_short$cancellation_policy))
-ggplot(data = data_short, aes(x = cancellation_policy, fill = instant_bookable)) + geom_bar(position = "dodge") + labs(x = "Cancellation Policy", y = "Count") 
-```
-
-As we can see, a larger propotion of apartments with srict cancellation policy are instant bookable, compared with those with other cancellation policies. 
-
-
-
-
-
-<<<<<<< HEAD
-=======
-## Regression model
+# Regression model
 
 To be updated by Jingyin
 
