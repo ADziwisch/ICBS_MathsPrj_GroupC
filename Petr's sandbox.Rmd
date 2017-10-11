@@ -42,12 +42,4 @@ cor(data_short$amen_Washer, data_short$amen_Dryer)
 
 Those variables provide similar information to the model and as a result, the standard error of our coefficients is inflated. This also intuitively makes sense as many washers can be used for drying.
 
-### Heteroscedasticity
-I guess leave for Nina to test?
-
-
-Multicollinearity -> higher error terms
-Omitted variable bias (provide examples)
-Is our data homoskedastic? Check that the variance of prices is the same across different levels of independent variables
-
 
