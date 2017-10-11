@@ -306,7 +306,7 @@ A short exploration of the residuals shows that with rising prices, the residual
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 3: Mapping Rent Prices vs. Airbnb Prices"}
 
-data_model <- data.frame(price_log = data_short$price_log, predicted = m2$fitted.values, residuals = m2$residuals)
+data_model <- data.frame(price = data_short$price, price_log = data_short$price_log, predicted = m2$fitted.values, residuals = m2$residuals)
 
 p1 <- ggplot(data = data_model, aes(x = predicted, y= residuals)) +
   geom_point(col = "#00E5FFFF", alpha = 0.5) +
@@ -320,13 +320,13 @@ p2 <- ggplot(data = data_model, aes(x = predicted, y = price_log)) +
 
 grid.arrange(p1, p2, ncol = 2)
 ```
-```{r}
 
-high_residuals <- data_short %>%
+```{r}
+high_residuals <- data_model %>%
   select(price, price_log, residuals) %>%
   filter(residuals > 0.3)
 
-low_residuals <- data_short %>%
+low_residuals <- data_model %>%
   select(price, price_log, residuals) %>%
   filter(residuals <= 0.3)
 
