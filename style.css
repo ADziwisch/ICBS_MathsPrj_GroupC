@@ -28,6 +28,7 @@ body .main-canvas{
   margin-right: auto;
   padding-left: 30px;
   padding-right: 30px;
+  margin-bottom: 45px;
 }
 
 body .title, .author, .date{
@@ -46,7 +47,6 @@ body #introduction{
 body .caption{
   font-style: italic;
   text-align: center;
-  font-size: 0.9 em;
   padding-top: 8px;
   padding-bottom: 8px;
 }
@@ -54,7 +54,6 @@ body .caption{
 body .table > caption{
   font-style: italic;
   text-align: center;
-  font-size: 0.9 em;
   color: #333;
 }
 
@@ -70,21 +69,55 @@ body #location > .table{
   margin-left: 15px;
 }
 
+body #location > .figure > img{
+  display: block;
+  margin: auto;
+}
+
+body #reviews > .table{
+  width: 80%;
+  margin: auto;
+}
+
 body #accomodates-and-beds > .table{
   width: 50%;
   float: right;
   margin-left: 15px;
-}
-
-body #location > .figure > img{
-  display: block;
-  margin: auto;
+  margin-bottom: 33px;
 }
 
 body #amenities > .figure{
   width: 55%;
   float: left;
   margin-right: 15px;
+}
+
+body #amenities > .table{
+  width: 80%;
+  margin: auto;
+}
+
+body #attributes-of-the-ad > .table{
+  width: 35%;
+  float: right;
+  margin-left: 15px;
+  margin-bottom: 33px;
+}
+
+body #regression-model > table{
+  width: 100%;
+  border-collapse: inherit;
+  border-spacing: 2px;
+}
+
+body #regression-model > table > caption{
+  font-style: italic;
+  text-align: center;
+  color: #333;
+}
+
+body #regression-model > table > caption > strong{
+  font-weight: normal !important;
 }
 
 body .bottom-box{
