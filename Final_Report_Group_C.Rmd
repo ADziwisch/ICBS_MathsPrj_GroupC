@@ -32,11 +32,13 @@ load("data_short.RData")
 
 lnd <- readOGR(dsn = "map_data", layer = "london_sport", verbose = FALSE)
 lnd_f <- broom::tidy(lnd)
+
+fp <- function(x){ if(x < 0.01) { return("< 0.01") } else { return(round(x,2))} }
 ```
 
 # Introduction
 
-With platforms offering cheap flights and accommodation, travelling around in Europe is common among students nowadays. Sharing economy services such as Airbnb have facilitated the search for a spare room rented out by a private agent. Profits of the platform have skyrocketed in the past years and a typical UK host now earns around £3,000 a year [@Cox_2017]. As those profits are paid by the user, understanding the pricing of Airbnb offers becomes crucial.
+With platforms offering cheap flights and accommodation, travelling around in Europe is common among students nowadays. Sharing economy services such as Airbnb have facilitated the search for a spare room rented out by a private agent. Profits of the platform have skyrocketed in the past years and a typical UK host now earns around £3,000 a year [@Indi_2017]. As those profits are paid by the user, understanding the pricing of Airbnb offers becomes crucial.
 
 If you are on a tight budget you want to get the best value for your money. At the same time, you have certain expectations about the type of flat, its location and the offered amenities. This paper's aim is to explore the various factors influencing the price and to set up a regression model which explains the pricing on Airbnb, so you can find the right price for the right flat.
 
@@ -44,7 +46,7 @@ If you are on a tight budget you want to get the best value for your money. At t
 
 The dataset of this paper covers all Airbnb offerings in London as per the 4th and 5th of March 2017. It contains 53,904 observations for 95 different variables. Its source is the website "Inside Airbnb - Adding data to the debate" [@Cox_2017]. This is an independent and non-commercial project aiming to examine the effect of Airbnb activities on urban development.
 
-To allow this investigation to be more focused, the dataset was narrowed down. Only private rooms with at least three valid ratings were included. The resulting dataset has 6,495 observations for 78 variables.
+To allow this investigation to be more focused, the dataset was narrowed down. Only private rooms with at least three valid ratings were included. The resulting dataset has 7,020 observations for 78 variables. All data, modification code and documents can be accessed via the <a href="https://github.com/ADziwisch/ICBS_MathsPrj_GroupC">Groups GitHub Repository</a>.
 
 ## Price
 
@@ -60,9 +62,9 @@ A room in London costs on average £50 per night. The summary statistics show th
 This raises concerns about the normality of its distribution. In fact, the plot to the left shows the distribution is not normal. In order to normalize the presented data set, the price is converted with a natural logarithm.
 
 ```{r echo=FALSE, fig.width=10, fig.height=3.5, fig.cap="Figure 1: Density of Price and ln(Price)"}
-p1 <- data_short %>% ggplot(aes(x = price)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "PRICE", y = "DENSITY") + 
+p1 <- data_short %>% ggplot(aes(x = price)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "Price", y = "Density") + 
   theme_minimal() + geom_vline(xintercept = mean(data_short$price), col = "#4C00FFFF")
-p2 <- data_short %>% ggplot(aes(x = price_log)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "LN(PRICE)", y = "DENSITY") + 
+p2 <- data_short %>% ggplot(aes(x = price_log)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "Ln(Price)", y = "Density") + 
   theme_minimal() + geom_vline(xintercept = mean(data_short$price_log), col = "#4C00FFFF")
 
 grid.arrange(p1, p2, ncol = 2, widths = c(1.5, 1))
@@ -71,10 +73,10 @@ grid.arrange(p1, p2, ncol = 2, widths = c(1.5, 1))
 ## Rent
 
 ```{r echo = FALSE, message = FALSE, warning=FALSE}
-cor.test(data_short$mean_rent, data_short$price_log)
+t1 <- cor.test(data_short$mean_rent, data_short$price_log)
 ```
 
-With London being one of the most expensive cities to live, rent prices are a major cost of being a host on Airbnb. Rents are also an interesting indicator of the attractiveness of the neighbourhood. Therefore, the impact of the underlying rent on the Airbnb price has to be accounted for. The initial dataset holds no information on the regular rent price at the location of an Airbnb. Fortunately, a website called “Find Properly” [@Findproperly_2017]  utilizes the data from Zoopla and provides the rent and selling price for each London region, divided per post code. Using the post code, the average weekly rent for 1-bed properties is merged with the Airbnb data set. The matching was done based on the Outward code. 
+With London being one of the most expensive cities to live, rent prices are a major cost of being a host on Airbnb. Rents are also an interesting indicator of the attractiveness of the neighbourhood. Therefore, the impact of the underlying rent on the Airbnb price has to be accounted for. The initial dataset holds no information on the regular rent price at the location of an Airbnb. Fortunately, a website called “Find Properly” [@Findproperly_2017] utilizes the data from Zoopla and provides the rent and selling price for each London region, divided per post code. Using the post code, the average weekly rent for properties with one bedroom is merged with the Airbnb data set. The matching was done based on the Outward code. 
 
 Geographically mapping the mean rent and the logarithmically transformed Airbnb price reveals the positive correlation (+ 0.48) between the variables. Nevertheless, it also becomes clear that there is more to an Airbnb price than just the average rent in the particular neighbourhood.
 
@@ -82,14 +84,16 @@ Geographically mapping the mean rent and the logarithmically transformed Airbnb 
 map1 <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_short, aes(east, north, color = mean_rent), alpha = 0.5, size = 1) +
-  labs(x = 'Easting', y = 'Northing') +
-  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4)) + theme(legend.position = "bottom")
+  labs(x = 'Easting', y = 'Northing') + coord_equal() +
+  theme_minimal() + scale_colour_gradientn(colours = topo.colors(4), name="Average Rent") +
+  theme(legend.position = c(0.9, 0.15), legend.background = element_rect(fill = "white", color = "white"))
 
 map2 <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_short, aes(east, north, color = price_log), alpha = 0.5, size = 1) +
-  labs(x = 'Easting', y = 'Northing') +
-  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4))  + theme(legend.position = "bottom")
+  labs(x = 'Easting', y = 'Northing') + coord_equal() +
+  theme_minimal() + scale_colour_gradientn(colours = topo.colors(4), name="Ln(Price)") +
+  theme(legend.position = c(0.9, 0.15), legend.background = element_rect(fill = "white", color = "white"))
 
 grid.arrange(map1, map2, ncol = 2)
 ```
@@ -106,7 +110,7 @@ When choosing an Airbnb in London, staying close to the city centre is preferred
 cuts <- data.frame(price_log = data_short$price_log, dist_bin = cut(data_short$distance, 10))
 
 cuts %>% ggplot() + geom_boxplot(aes(x = dist_bin, y = price_log), fill = "#00E5FFFF", alpha = .5, color = "#333333") + theme_minimal() + coord_flip() + scale_x_discrete(limits = rev(levels(cuts$dist_bin))) +
-  ylab("LN(PRICE)") + xlab("DISTANCE IN KM")
+  ylab("Ln(Price)") + xlab("Distance in km")
 ```
 
 
@@ -177,7 +181,7 @@ formattable(descriptives_rating, caption = "Table 3: Descriptives of Rating")
 t1 <- cor.test(data_short$price_log, data_short$accommodates)
 t2 <- cor.test(data_short$price_log, data_short$beds)
 
-t_summary <- data.frame(names = c("Accommodates", "Beds"), p_value = c((t1$p.value), (t2$p.value)), conf_low = c(round(t1$conf.int[1], 2), round(t2$conf.int[1], 2)), estimate = c(round(t1$estimate,2), round(t2$estimate,2)), conf_high = c(round(t1$conf.int[2], 2), round(t2$conf.int[2],2)))
+t_summary <- data.frame(names = c("Accommodates", "Beds"), p_value = c(fp(t1$p.value), fp(t2$p.value)), conf_low = c(round(t1$conf.int[1], 2), round(t2$conf.int[1], 2)), estimate = c(round(t1$estimate,2), round(t2$estimate,2)), conf_high = c(round(t1$conf.int[2], 2), round(t2$conf.int[2],2)))
 
 colnames(t_summary) <- c("Variable", "P-Value", "Conf-Int. Low", "Estimate", "Conf-Int. High")
 
@@ -188,10 +192,25 @@ The variables accommodates (how many people can stay in the property) and beds (
 
 ### Amenities
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=5.5, fig.cap="Figure 4: Percentage of Amenities"}
+```{r eval = FALSE, echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=5.5, fig.cap="Figure 4: Percentage of Amenities"}
 amen <- select(data_short, contains("amen_"))
 
-amen<-rename(amen,c("amen_Internet"="Internet","amen_Wireless_Internet"="Wifi","amen_Heating"="Heating","amen_Kitchen"="Kitchen","amen_Essentials"="Essentials","amen_Washer"="Washer","amen_Smoke_detector"="Smoke_detector","amen_Shampoo"="Shampoo","amen_Hangers"="Hangers","amen_Iron"="Iron","amen_TV"="TV","amen_Hair_dryer"="Hair_dryer","amen_Carbon_monoxide_detector"="Carbon_monoxide_detector","amen_Laptop_friendly_workspace"="Laptop_friendly","amen_Family/kid_friendly"="Family_friendly","amen_Buzzer/wireless_intercom"="Buzzer_wireless","amen_Dryer"="Dryer","amen_First_aid_kit"="First_aid_kit","amen_Elevator_in_building"="Elevator_in_building","amen_Fire_extinguisher"="Fire_extinguisher","amen_24-hour_check-in"="24_hour_check_in","amen_Free_parking_on_premises"="Free_parking","amen_Breakfast"="Breakfast","amen_Cable_TV"="Cable_TV","amen_Lock_on_bedroom_door"="Lock_on_bedroom_door","amen_Safety_card"="Safety_card","amen_Smoking_allowed"="Smoking_allowed","amen_Pets_live_on_this_property"="Pets_live_here","amen_Hot_tub"="Hot_tub","amen_Wheelchair_accessible"="Wheelchair_accessible","amen_Pets_allowed"="Pets_allowed","amen_Indoor_fireplace"="Indoor_fireplace","amen_Doorman"="Doorman","amen_Keypad"="Keypad","amen_Free_parking_on_street"="Free_parking_on_street","amen_Paid_parking_off_premises"="Paid_parking","amen_Smartlock"="Smartlock","amen_Washer_/_Dryer"="Washer_Dryer","amen_Air_conditioning"="Air_con","amen_Self_Check-In"="Self_Check-In","amen_Gym"="Gym","amen_Lockbox"="Lockbox","amen_Suitable_for_events"="Suitable_for_events","amen_Private_entrance"="Private_entrance","amen_Private_living_room"="Private_living_room","amen_Pool"="Pool","amen_Doorman_Entry"="Doorman_Entry"))
+amen<-rename(amen,c("amen_Internet"="Internet","amen_Wireless_Internet"="Wifi","amen_Heating"="Heating",
+                    "amen_Kitchen"="Kitchen","amen_Essentials"="Essentials","amen_Washer"="Washer","amen_Smoke_detector"="Smoke Detector",
+                    "amen_Shampoo"="Shampoo", "amen_Hangers"="Hangers", "amen_Iron"="Iron","amen_TV"="TV","amen_Hair_dryer"="Hair Dryer",
+                    "amen_Carbon_monoxide_detector"="CO Detector","amen_Laptop_friendly_workspace"="Laptop friendly",
+                    "amen_Family/kid_friendly"="Family friendly","amen_Buzzer/wireless_intercom"="Buzzer","amen_Dryer"="Dryer",
+                    "amen_First_aid_kit"="First-aid Kit","amen_Elevator_in_building"="Elevator",
+                    "amen_Fire_extinguisher"="Fire Extinguisher","amen_24-hour_check-in"="24h Check-in",
+                    "amen_Free_parking_on_premises"="Free parking","amen_Breakfast"="Breakfast","amen_Cable_TV"="Cable TV",
+                    "amen_Lock_on_bedroom_door"="Lock on Bedroom Door","amen_Safety_card"="Safety Card",
+                    "amen_Smoking_allowed"="Smoking allowed","amen_Pets_live_on_this_property"="Pets live here",
+                    "amen_Hot_tub"="Hot Tub","amen_Wheelchair_accessible"="Wheelchair Accessible",
+                    "amen_Pets_allowed"="Pets allowed","amen_Indoor_fireplace"="Indoor Fireplace","amen_Doorman"="Doorman","amen_Keypad"="Keypad",
+                    "amen_Free_parking_on_street"="Free Parking - Street","amen_Paid_parking_off_premises"="Paid parking","amen_Smartlock"="Smartlock",
+                    "amen_Washer_/_Dryer"="Washer Dryer","amen_Air_conditioning"="Aircon","amen_Self_Check-In"="Self Check-In",
+                    "amen_Gym"="Gym","amen_Lockbox"="Lockbox","amen_Suitable_for_events"="For Events","amen_Private_entrance"="Private Entrance",
+                    "amen_Private_living_room"="Private Living Room","amen_Pool"="Pool","amen_Doorman_Entry"="Doorman Entry"))
 
 amen_name <- colnames(amen)
 number <- colMeans(amen[, (1:53)], na.rm=TRUE) * 100
@@ -202,7 +221,7 @@ amen_data <- amen_data[-c(6,17,18,21,36,45,51),]
 amen_data <- amen_data %>% filter(number <= 91 & number >= 15)
 amen_data <- arrange(amen_data , desc(number))
 
-amen_data %>% ggplot() + geom_bar(aes(x = reorder(amen_name, number), y = number), fill = "#00E5FFFF", alpha = .5, stat = 'identity', width = 1) + coord_flip() + theme_minimal() + ylab("SHARE OF FLATS WITH AMENITY") + xlab("AMENITY")
+amen_data %>% ggplot() + geom_bar(aes(x = reorder(amen_name, number), y = number), fill = "#00E5FFFF", alpha = .5, stat = 'identity', width = 1) + coord_flip() + theme_minimal() + ylab("Share of Airbnbs incl Amenity") + xlab("Amenity")
 ```
 
 Airbnb includes some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms. On top of these characteristics, Airbnb contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV to a personal doorman or a pool. In order to analyse these, dummy variables for 53 different amenities, with 46 resulting in usable data, as well as a variable counting the total number of amenities were introduced.
@@ -225,32 +244,28 @@ t6 <- t.test(data_short[data_short[, "amen_Elevator_in_building"] == "TRUE", "pr
 t7 <- t.test(data_short[data_short[, "amen_Lock_on_bedroom_door"] == "TRUE", "price_log"], 
        data_short[data_short[, "amen_Lock_on_bedroom_door"]  == "FALSE", "price_log"])
 
-t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Kitchen", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(round(t1$p.value, 2), round(t2$p.value,2), round(t3$p.value,2), round(t4$p.value, 2), round(t5$p.value, 2), round(t6$p.value,2), round(t7$p.value,2)), Mean_With = c(round(t1$estimate[1],2), round(t2$estimate[1],2), round(t3$estimate[1],2), round(t4$estimate[1],2), round(t5$estimate[1],2), round(t6$estimate[1],2), round(t7$estimate[1],2)), Mean_Without = c(round(t1$estimate[2],2), round(t2$estimate[2],2), round(t3$estimate[2],2), round(t4$estimate[2],2), round(t5$estimate[2],2), round(t6$estimate[2],2), round(t7$estimate[2],2)))
+t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Kitchen", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(fp(t1$p.value), fp(t2$p.value), fp(t3$p.value), fp(t4$p.value), fp(t5$p.value), fp(t6$p.value), fp(t7$p.value)), Mean_With = c(round(t1$estimate[1],2), round(t2$estimate[1],2), round(t3$estimate[1],2), round(t4$estimate[1],2), round(t5$estimate[1],2), round(t6$estimate[1],2), round(t7$estimate[1],2)), Mean_Without = c(round(t1$estimate[2],2), round(t2$estimate[2],2), round(t3$estimate[2],2), round(t4$estimate[2],2), round(t5$estimate[2],2), round(t6$estimate[2],2), round(t7$estimate[2],2)))
 
 t_data <- t_data %>% mutate(Difference = Mean_With - Mean_Without)
-colnames(t_data) <- c("Amenities", "P-Value", "Mean ln(price) With", "Mean ln(price) Without", "Price Difference")
+colnames(t_data) <- c("Amenities", "P-Value", "Mean ln(Price) Incl", "Mean ln(Price) Excl", "Difference ln(Price)")
 formattable(t_data, caption = "Table 5: Descriptives of Selected Amenities")
 ```
 
-## Attributes of the ad
-
-Usually, a guest needs to submit a booking request and gets to stay in the property only if the host approves that request. To attract more customers, some hosts allow instant booking of their properties, which is similar to booking a hotel - the user just books the property straight away. In the dataset, TRUE means guests can book the desired property instantly, while FALSE means they have to get approval from the host first.
-
-In addition to instant book, hosts also have the right to choose their own cancellation policy. Cancellation policy determines whether or not guests can get a refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get a full refund if the reservation is cancelled within a limited period, typically 24 hours prior to the check in. If moderate, fees are fully refundable but only if cancelled a longer time in advance. Under the strict policy, only 50% of fees may be refunded if the booking is cancelled more than 1 week before check in. [@Airbnb_2017] While the difference in mean of rooms with instant bookings is insignificant, the correlation between the scale version of cancellation policy is significantly but weakly correlated to the price of the room.
+## Attributes of the Ad
 
 ```{r echo=FALSE}
 t1 <- t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_log"], 
        data_short[data_short[, "instant_bookable"]  == "FALSE", "price_log"])
-
 t2 <- cor.test(as.numeric(data_short$cancellation_policy), data_short$price_log)
 
-t_data_ad <- data.frame(attributes = c("Instant Bookable", "Cancellation Policy"), p_vals = c(signif(t1$p.value, 4), signif(t2$p.value, 4)))
-
-colnames
-
+t_data_ad <- data.frame(attributes = c("Instant Bookable", "Cancellation Policy"), p_vals = c(fp(t1$p.value), fp(t2$p.value)))
+colnames(t_data_ad) <- c("Attributes", "P-Value")
 formattable(t_data_ad, caption = "Table 6: Descriptives of Ad Properties")
 ```
 
+Usually, a guest needs to submit a booking request and gets to stay in the property only if the host approves that request. To attract more customers, some hosts allow instant booking of their properties, which is similar to booking a hotel - the user just books the property straight away. In the dataset, TRUE means guests can book the desired property instantly, while FALSE means they have to get approval from the host first.
+
+In addition to instant book, hosts also have the right to choose their own cancellation policy. Cancellation policy determines whether or not guests can get a refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get a full refund if the reservation is cancelled within a limited period, typically 24 hours prior to the check in. If moderate, fees are fully refundable but only if cancelled a longer time in advance. Under the strict policy, only 50% of fees may be refunded if the booking is cancelled more than 1 week before check in. [@Airbnb_Cancel_2017] While the difference in mean of rooms with instant bookings is insignificant, the correlation between the scale version of cancellation policy is significantly but weakly correlated to the price of the room.
 
 # Regression model
 
@@ -299,10 +314,10 @@ $$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance)
 
 ## Fitting the model
 
+### Residuals
+
 ```{r echo=FALSE}
 data_model <- data.frame(price = data_short$price, price_log = data_short$price_log, residuals = m2$residuals)
-
-
 high_residuals <- data_model %>%
   select(price, price_log, residuals) %>%
   filter(residuals > 0.3)
@@ -311,19 +326,21 @@ low_residuals <- data_model %>%
   select(price, price_log, residuals) %>%
   filter(residuals <= 0.3)
 
-descriptives_residuals <- data.frame(
-                 Name=c("Data with high residuals", "Data with low residuals"),
-                 
-                 LN_Mean_Rent=c(round(mean(high_residuals$price_log), 2), round(mean(low_residuals$price_log),2)),
-                 
-                 Mean_Rent=c(round(mean(high_residuals$price), 2), round(mean(low_residuals$price),2)))
-
-colnames(descriptives_residuals) = c("Name", "Mean LN Price", "Mean Price")
-
+descriptives_residuals <- data.frame(Name=c("Data with high residuals", "Data with low residuals"),
+                                     LN_Mean_Rent=c(round(mean(high_residuals$price_log), 2), round(mean(low_residuals$price_log),2)),
+                                     Mean_Rent=c(round(mean(high_residuals$price), 2), round(mean(low_residuals$price),2)))
+colnames(descriptives_residuals) = c("Name", "Mean Ln(Price)", "Mean Price")
 formattable(descriptives_residuals, caption = "Table 8: Residuals")
 ```
-### Residuals
-A short exploration of the residuals shows that the mean of observations with larger residuals was higher compared to the other observations. As the presented scatter plot illustrates, the model is worse in predicting more expensive rooms accurately. The factors chosen do not fully explain the difference in price. The Durbin-Watson test shows that the error values are uncorrelated.
+
+```{r eval=FALSE, echo=FALSE}
+t2 <- durbinWatsonTest(m2)
+t2_data <- data.frame(round(t2$r, 2), round(t2$dw, 2), fp(t2$p))
+colnames(t2_data) <- c("Autocorrelation", "D-W Statistic", "p-value")
+formattable(t2_data, caption = "Table 10: Results Durbin Watson Test")
+```
+
+A short exploration of the residuals shows that the mean of observations with larger residuals was higher compared to the other observations. As the presented scatter plot illustrates, the model is less accurate on explaining more expensive rooms. The factors chosen do not fully explain the difference in price. A Durbin-Watson test on the regression model shows that the error values are uncorrelated.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 5: Residuals and ln(price)"}
 
@@ -332,15 +349,8 @@ data_model <- data.frame(price = data_short$price, price_log = data_short$price_
 ggplot(data = data_model, aes(x = price_log, y= residuals)) +
   geom_point(col = "#00E5FFFF", alpha = 0.5) +
   geom_smooth(method = "lm", se = FALSE, col ="#4C00FFFF") +
-  theme_minimal() + xlab("LN(PRICE)") + ylab("RESIDUALS")
+  theme_minimal() + xlab("Ln(Price)") + ylab("Residuals")
 
-```
-
-```{r echo=FALSE}
-t2 <- durbinWatsonTest(m2)
-t2_data <- data.frame(round(t2$r, 2), round(t2$dw, 2), round(t2$p, 2))
-colnames(t2_data) <- c("Autocorrelation", "D-W Statistic", "p-value")
-formattable(t2_data, caption = "Table 10: Results Durbin Watson Test")
 ```
 
 ### Sensitivity to outliers
@@ -349,8 +359,6 @@ As in any regression model based on ordinary least squares, the coefficients in 
 
 ### Multicollinearity
 
-Most correlated variables were already excluded from the regression, as those relations might increase the error terms of the model. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually, a VIF greater than 3 is considered critical to the model results. None of the used variables reaches that border value. 
-
 ```{r echo=FALSE}
 t1 <- vif(m2)
 t1_data = data.frame(VIF = round(t1, 2))
@@ -358,10 +366,11 @@ rownames(t1_data) = c("Mean Rent", "Distance", "Review Score - Cleanliness", "Re
 formattable(t1_data, caption = "Table 9: Results Multicollinearity Test")
 ```
 
+Most correlated variables were already excluded from the regression, as those relations might increase the error terms of the model. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually, a VIF greater than 3 is considered critical to the model results. None of the used variables reaches that border value. 
+
 ### Omitted variable bias
 
 The price of an Airbnb is affected by a large number of factors. The presented model includes some of them, but it was not feasible or possible to include data concerning every single possible determinant. As a result, the model likely suffers from omitted variable bias. It under- or overestimates the effect of some of the existing factors to compensate for the missing information, making the model less reliable. 
-
 
 ### Lack of clustering
 
@@ -371,13 +380,12 @@ By putting all properties into one model, we ignore the fact that there might be
 
 The dataset does not contain several important variables, such as the size of the room, the proximity of the flat to a tube station, the age of the flat, the quality of the equipment and furniture in the flat or the attractiveness of the apartment and the building. Additionally, the attractiveness of the room and the house it is in were not quantifiable. As this attractiveness differs across buildings and sometimes even within a building, it is impossible to predict the price of an apartment that exceeds expectations set by the base explanatory variables used in the regression. 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 6: Predicted and Real Value"}
+```{r eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 6: Predicted and Real Value"}
 ggplot(data = data_model, aes(x = predicted, y = price_log)) +
   geom_point(col = "#00E5FFFF", alpha = 0.5) +
   geom_smooth(method = "lm", se = FALSE, col ="#4C00FFFF") +
   theme_minimal() + xlab("PREDICTED VALUE") + ylab("LN(PRICE)")
 ```
-
 
 # Conclusion
 

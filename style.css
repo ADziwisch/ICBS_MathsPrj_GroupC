@@ -31,17 +31,26 @@ body .main-canvas{
   margin-bottom: 45px;
 }
 
+body .title{
+  margin-top: 50px;
+  font-size: 45px;
+}
+
+body .author{
+  margin-top: 15px;
+}
+
+body .date{
+  margin-top: 15px;
+}
+
 body .title, .author, .date{
   color: white;
   text-align: center;
 }
 
-body .title{
-  margin-top: 50px;
-}
-
 body #introduction{
-  margin-top: 150px;
+  margin-top: 120px;
 }
 
 body .caption{
@@ -58,9 +67,9 @@ body .table > caption{
 }
 
 body #price > .table{
-  width: 50%;
+  width: 40%;
   float: right;
-  margin-left: 15px;
+  margin-left: 30px;
 }
 
 body #location > .table{
@@ -79,17 +88,17 @@ body #reviews > .table{
   margin: auto;
 }
 
-body #accomodates-and-beds > .table{
+body #accommodates-and-beds > .table{
   width: 50%;
   float: right;
-  margin-left: 15px;
-  margin-bottom: 33px;
+  margin-left: 30px;
+  margin-top: -15px;
 }
 
 body #amenities > .figure{
-  width: 55%;
-  float: left;
-  margin-right: 15px;
+  width: 50%;
+  float: right;
+  margin-right: 30px;
 }
 
 body #amenities > .table{
@@ -118,6 +127,20 @@ body #regression-model > table > caption{
 
 body #regression-model > table > caption > strong{
   font-weight: normal !important;
+}
+
+body #residuals > .table{
+  width: 50%;
+  float: right;
+  margin-left: 30px;
+  margin-top: -15px;
+}
+
+body #multicollinearity > .table{
+  width: 50%;
+  float: right;
+  margin-left: 30px;
+  margin-top: -30px;
 }
 
 body .bottom-box{
