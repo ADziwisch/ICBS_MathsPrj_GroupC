@@ -32,6 +32,9 @@ load("data_short.RData")
 
 lnd <- readOGR(dsn = "map_data", layer = "london_sport", verbose = FALSE)
 lnd_f <- broom::tidy(lnd)
+
+## Custom formatting of p.Values
+fp <- function(x){if(x < 0.01){return("< 0.01")}else{return(round(x, 2))}}
 ```
 
 # Introduction
@@ -78,14 +81,16 @@ Mapping the mean rent and the logarithmically transformed AirBnB price according
 map1 <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_short, aes(east, north, color = mean_rent), alpha = 0.5, size = 1) +
-  labs(x = 'Easting', y = 'Northing') +
-  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4)) + theme(legend.position = "bottom")
+  labs(x = 'Easting', y = 'Northing') + coord_equal() + theme_minimal() +
+  scale_colour_gradientn(colours = topo.colors(4), name = "Mean Rent") +
+  theme(legend.position = c(.90, .15), legend.box.background = element_rect(fill = "white", colour = "white"))
 
 map2 <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_short, aes(east, north, color = price_log), alpha = 0.5, size = 1) +
-  labs(x = 'Easting', y = 'Northing') +
-  coord_equal() + theme_minimal() + scale_colour_gradientn(colours = topo.colors(4))  + theme(legend.position = "bottom")
+  labs(x = 'Easting', y = 'Northing') + coord_equal() + theme_minimal() +
+  scale_colour_gradientn(colours = topo.colors(4), name = "Ln(Price)")  +
+  theme(legend.position = c(.90, .15), legend.box.background = element_rect(fill = "white", colour = "white"))
 
 grid.arrange(map1, map2, ncol = 2)
 ```
@@ -105,9 +110,10 @@ When choosing an AirBnB in London, location is an important factor, since stayin
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, fig.cap="Figure 3: Mapping Rent Prices vs. AirBnB Prices"}
 cuts <- data.frame(price_log = data_short$price_log, dist_bin = cut(data_short$distance, 10))
+levels(cuts$dist_bin) <- gsub(",", " - ", levels(cuts$dist_bin))
 
 cuts %>% ggplot() + geom_boxplot(aes(x = dist_bin, y = price_log), fill = "#00E5FFFF", alpha = .5, color = "#333333") + theme_minimal() + coord_flip() + scale_x_discrete(limits = rev(levels(cuts$dist_bin))) +
-  ylab("LN(PRICE)") + xlab("DISTANCE")
+  ylab("Ln(Price)") + xlab("Distance")
 ```
 
 From the boxplot and correlation test above, it seems that the distance to the city center and price are significantly negatively correlated. That means that, statistically speaking, the closer the property is to the city center, the higher the price is.
@@ -226,9 +232,11 @@ t6 <- t.test(data_short[data_short[, "amen_Elevator_in_building"] == "TRUE", "pr
 t7 <- t.test(data_short[data_short[, "amen_Lock_on_bedroom_door"] == "TRUE", "price_log"], 
        data_short[data_short[, "amen_Lock_on_bedroom_door"]  == "FALSE", "price_log"])
 
-t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(round(t1$p.value, 2), round(t2$p.value,2), round(t3$p.value,2), round(t4$p.value, 2), round(t6$p.value,2), round(t7$p.value,2)), Mean_With = c(round(t1$estimate[1],2), round(t2$estimate[1],2), round(t3$estimate[1],2), round(t4$estimate[1],2), round(t6$estimate[1],2), round(t7$estimate[1],2)), Mean_Without = c(round(t1$estimate[2],2), round(t2$estimate[2],2), round(t3$estimate[2],2), round(t4$estimate[2],2), round(t6$estimate[2],2), round(t7$estimate[2],2)))
+t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(fp(t1$p.value), fp(t2$p.value), fp(t3$p.value), fp(t4$p.value), fp(t6$p.value), fp(t7$p.value)), Mean_With = c(fp(t1$estimate[1]), fp(t2$estimate[1]), fp(t3$estimate[1]), fp(t4$estimate[1]), fp(t6$estimate[1]), fp(t7$estimate[1])), Mean_Without = c(fp(t1$estimate[2]), fp(t2$estimate[2]), fp(t3$estimate[2]), fp(t4$estimate[2]), fp(t6$estimate[2]), fp(t7$estimate[2])))
 
 t_data <- t_data %>% mutate(Difference = Mean_With - Mean_Without)
+
+colnames(t_data) <- c("Amenity", "P-Value", "Mean Ln(Price) - Included", "Mean Ln(Price) - Excluded", "Difference Ln(Price)")
 
 formattable(t_data, caption = "Table 5: Descriptives of Selected Amenities")
 ```
