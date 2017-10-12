@@ -170,3 +170,85 @@ d <- nrow(Price_rent_cat)
 Price_rent_cat <- Price_rent_cat %>% mutate( tier = ifelse(rank_rent %in% floor(c(1:a)), "tier1", ifelse(rank_rent %in% floor(c(a:b)), "tier2", ifelse(rank_rent %in% floor(c(b:c)), "tier3", ifelse(rank_rent %in% floor(c(c:d+1)), "tier4","" )))))
 
 ```
+
+```{r}
+m1 <- lm(price_log ~ mean_rent +
+                          distance +
+                          review_scores_rating +
+                          review_scores_accuracy +
+                          review_scores_checkin +
+                          review_scores_cleanliness +
+                          review_scores_communication +
+                          review_scores_location +
+                          review_scores_value +
+                          accommodates +
+                          beds +
+                          amen_TV +
+                          amen_Dryer +
+                          amen_Free_parking_on_premises +
+                          amen_Cable_TV +
+                          `amen_Buzzer/wireless_intercom` +
+                          amen_Hair_dryer +
+                          amen_Doorman +
+                          amen_Elevator_in_building +
+                          amen_Fire_extinguisher +
+                          amen_Shampoo +
+                          cancellation_policy,
+         data = data_short)
+
+summary(m1)
+m2 <- lm(price_log ~ mean_rent +
+                          distance +
+                          review_scores_rating +
+                          review_scores_accuracy +
+                          review_scores_cleanliness +
+                          review_scores_location +
+                          review_scores_value +
+                          accommodates +
+                          beds +
+                          amen_TV +
+                          amen_Dryer +
+                          amen_Free_parking_on_premises +
+                          amen_Cable_TV +
+                          `amen_Buzzer/wireless_intercom` +
+                          amen_Doorman +
+                          amen_Elevator_in_building,
+         data = data_short)
+summary(m2)
+
+m3 <- lm(price_log ~ mean_rent +
+                          distance +
+                          review_scores_rating +
+                          review_scores_cleanliness +
+                          review_scores_location +
+                          review_scores_value +
+                          accommodates +
+                          beds +
+                          amen_TV +
+                          amen_Dryer +
+                          amen_Free_parking_on_premises +
+                          amen_Cable_TV +
+                          `amen_Buzzer/wireless_intercom` +
+                          amen_Doorman +
+                          amen_Elevator_in_building,
+         data = data_short)
+summary(m3)
+
+m4 <- lm(price_log ~ mean_rent +
+                          distance +
+                          review_scores_rating +
+                          review_scores_cleanliness +
+                          review_scores_location +
+                          accommodates +
+                          amen_TV +
+                          amen_Dryer +
+                          amen_Free_parking_on_premises +
+                          amen_Cable_TV +
+                          `amen_Buzzer/wireless_intercom` +
+                          amen_Doorman +
+                          amen_Elevator_in_building,
+         data = data_short)
+summary(m4)
+stargazer(m4,type = "text")
+```
+
