@@ -229,6 +229,26 @@ $$ ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(acco
 
 Despite the fact that the presented model has obvious limitations regarding factors that could not be quantified, it has direct implications for finding a reasonably prices apartment. Many properties important for someone searching for a room, like WIFI and the existence of a proper equipped kitchen, have small effects on the room price, as they are present to most London based apartments. A traveller can therefore expect to have those properties present. Luxury amendities like the presence of an elevator, a TV and a dryer create costs. Depending on the standards of the guest, these can be added if the budget is extended. It is also good advice to check apartments in less attractive neighbourhoods to save money. Regarding cleanliness, a well maintained room and flat will cost more. Looking at these different attributes of an AirBnB add, the user is able to determine whether the price of the apartment is actually fair, which was the aim of this report. As especially high prices could not be explained in the model, a prediction is likely to return a base price rather than a highly attractive room in a good apartment in a nice building. 
 
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+install.packages("rgdal")
+library(ggplot2)
+library(dplyr)
+library(pracma)
+library(sp)
+library(rgdal)
+library(knitr)
+library(stringr)
+library(formattable)
+library(nortest)
+library(stargazer)
+library(gridExtra)
+library(car)
+library(plyr)
 
+load("data_short.RData")
+
+lnd <- readOGR(dsn = "map_data", layer = "london_sport", verbose = FALSE)
+lnd_f <- broom::tidy(lnd)
+```
 
 
