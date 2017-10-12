@@ -114,7 +114,7 @@ From the boxplot and correlation test above, it seems that the distance to the c
 
 ## Reviews
 
-In addition to the written reviews, guests can give their hosts star-ratings on the following parameters [see @AirBnB_2017]: Overall experience, accuracy, cleanliness, communication, check in, location and value. Most of those are self-explanatory; accuracy represents the extent to which the online listing represtents the reality, and value is a subjective measure of whether the room was worth the price paid.
+In addition to the written reviews, guests can give their hosts star-ratings on the following parameters [see @Airbnb_2017]: Overall experience, accuracy, cleanliness, communication, check in, location and value. Most of those are self-explanatory; accuracy represents the extent to which the online listing represtents the reality, and value is a subjective measure of whether the room was worth the price paid.
 
 The guest ratings are translated into a score out of 10 for the individual categories, and a score out of 100 for the overall score. The mean value for many categories is 9 or 10. Such high scores are frequently seen when feedback from users is collected. For example, Uber considers removing drivers rated on average less than 4.6 stars out of 5 [BI_2015].
 
@@ -302,6 +302,9 @@ $$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance)
 ## Fitting the model
 
 ```{r echo=FALSE}
+data_model <- data.frame(price = data_short$price, price_log = data_short$price_log, residuals = m2$residuals)
+
+
 high_residuals <- data_model %>%
   select(price, price_log, residuals) %>%
   filter(residuals > 0.3)
@@ -355,15 +358,16 @@ Upon testing for multicollinearity, correlations between the explanatory variabl
 
 ```{r echo=FALSE}
 t1 <- vif(m2)
-test_data = data.frame(VIF = round(t1, 2))
-rownames(test_data) = c("Mean Rent", "Distance", "Accomodates", "Review Score - Rating", "Review Score - Cleanliness", "Review Score - Location", "Amenity - TV", "Amenity - Elevator", "Amenity - Dryer")
-formattable(test_data, caption = "Table 9: Results Multicollinearity Test")
+t1_data = data.frame(VIF = round(t1, 2))
+rownames(t1_data) = c("Mean Rent", "Distance", "Accomodates", "Review Score - Rating", "Review Score - Cleanliness", "Review Score - Location", "Amenity - TV", "Amenity - Elevator", "Amenity - Dryer")
+formattable(t1_data, caption = "Table 9: Results Multicollinearity Test")
 
 ```
 ```{r echo=FALSE}
-durbinWatsonTest(m2)
-data_short$predicted <- predict(m2)
-data_short$residuals <- residuals(m2)
+t2 <- durbinWatsonTest(m2)
+t2_data <- data.frame(round(t2$r, 2), round(t2$dw, 2), round(t2$p, 2))
+colnames(t2_data) <- c("Autocorrelation", "D-W Statistic", "p-value")
+formattable(t2_data, caption = "Table 10: Results Durbin Watson Test")
 ```
 
 
