@@ -36,7 +36,9 @@ lnd_f <- broom::tidy(lnd)
 
 # Introduction
 
-Profits of both hosts and the platform AirBnB have skyrocketed in the past years. A typical UK host earns around £3,000 a year [@Indi_2017]. Those profits are paid for by the user that is accountable for both the fee of the platform and the profit margin of the host.. If you are on a tight budget yourself you want to pick a price that is market average with the attributes important to you. This paper aims at creating a model to forecast the price a user pay will pay per night for an AirBnB matching his requirements to faciliate the check whether the price of the apartment is indeed the fair price. 
+Moving to a new city on a tight budget is challenging. Especially, a metropolis like London has high rents and a competitive market that makes it difficult to find accommodation that has the right attributes at the right price. Sharing economy services such as AirBnB have faciliated the search for a spare room rented out by a private agent. The available rooms and apartments are available for the user to settle right in. But how do you know if the price you are paying for your flat is actually a fair price?
+
+This paper aims to create a model which will identify how much AirBnB guests value different attributes of London rooms. The guests can also refer to in order to check whether they are paying an appropriate price for their AirBnB.
 
 # Description of the dataset
 
