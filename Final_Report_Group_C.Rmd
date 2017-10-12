@@ -301,7 +301,7 @@ $$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance)
 
 A short exploration of the residuals shows that with rising prices, the residuals increase. This implies that our model is worse in predicting the more expensive rooms as the factors chosen do not fully explain the difference in price. The relation between residuals and prices may be explained by a factor the model could not quantify: the attractiveness of the room and the house it is in. As this attractiveness differs across buildings and sometimes even within a building, it is impossible to predict the price of an apartment that exceeds expectations set by the base explanatory variables used in the regression.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 3: Mapping Rent Prices vs. Airbnb Prices"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 5: Residuals and Prediction"}
 
 data_model <- data.frame(price = data_short$price, price_log = data_short$price_log, predicted = m2$fitted.values, residuals = m2$residuals)
 
@@ -370,7 +370,7 @@ As in any regression model based on ordinary least squares, the coefficients in 
 
 Some of our explanatory variables (for example the distance from the city center) are not linearly related with the price of the property. There is a significant difference between the average price of a room located right in the city center and 5km away, while the difference for rooms located 25km away and 30km away is not very large. This suggests that we could model the relationship more accurately if we used non-linear regression.
 
-```{r}
+```{r echo=FALSE}
 ggplot(data = data_short, aes(x = distance, y = price_log)) + geom_smooth(se = FALSE) + theme_classic() + xlab("DISTANCE") + ylab("LN(PRICE)")
 ```
 
