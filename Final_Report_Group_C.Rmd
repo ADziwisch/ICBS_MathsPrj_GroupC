@@ -377,11 +377,13 @@ As in any regression model based on ordinary least squares, the coefficients in 
 
 ### Non-linear relationships
 
-Some of our explanatory variables (for example the distance from the city center) are not linearly related with the price of the property. There is a significant difference between the average price of a room located right in the city center and 5km away, while the difference for rooms located 25km away and 30km away is not very large. This suggests that we could model the relationship more accurately if we used non-linear regression.
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-ggplot(data = data_short, aes(x = distance, y = price_log)) + geom_smooth(se = FALSE) + theme_classic() + xlab("DISTANCE") + ylab("LN(PRICE)")
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=5.5, fig.cap="Figure 6: Non-Linear Relationship between Price and Location"}
+data_short %>% ggplot() + geom_point(aes(x = distance, y = price_log), col = "#00E5FFFF", alpha = 0.5) +
+  geom_smooth(aes(x = distance, y = price_log), col ="#4C00FFFF") +
+  theme_minimal() + xlab("DISTANCE") + ylab("LN(PRICE)")
 ```
+
+Some of our explanatory variables (for example the distance from the city center) are not linearly related with the price of the property. There is a significant difference between the average price of a room located right in the city center and 5km away, while the difference for rooms located 25km away and 30km away is not very large. This suggests that we could model the relationship more accurately if we used non-linear regression.
 
 ### Lack of clustering
 
