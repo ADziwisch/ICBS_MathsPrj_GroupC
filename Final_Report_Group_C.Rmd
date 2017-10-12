@@ -36,9 +36,9 @@ lnd_f <- broom::tidy(lnd)
 
 # Introduction
 
-Moving to a new city on a tight budget is challenging. Especially, a metropolis like London has high rents and a competitive market that makes it difficult to find accommodation that has the right attributes at the right price. Sharing economy services such as AirBnB have faciliated the search for a spare room rented out by a private agent. The available rooms and apartments are available for the user to settle right in. But how do you know if the price you are paying for your flat is actually a fair price?
+With platforms offering cheap flights and accommodations, travelling around in Europe is common among students nowadays. Sharing economy services such as Airbnb have facilitated the search for a spare room rented out by a private agent. Profits of the platform have skyrocketed in the past years and a typical UK host now earns around 3000 pounds a year [@Cox_2017]. As those profits are paid by the user, understanding the pricing of Airbnb offers becomes crucial.
 
-This paper aims to create a model which will identify how much AirBnB guests value different attributes of London rooms. The guests can also refer to in order to check whether they are paying an appropriate price for their AirBnB.
+If you are on a tight budget you want to get the best value for your money. At the same time, you have certain expectations about the type of flat, its location and the offered amenities. This paper ‘s aim is to explore the various factors influencing the price and to set up a regression model which explains the pricing on Airbnb. So you can find the right price for the right flat.
 
 # Description of the dataset
 
