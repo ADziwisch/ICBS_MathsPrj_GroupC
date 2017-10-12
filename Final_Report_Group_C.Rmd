@@ -226,7 +226,7 @@ t6 <- t.test(data_short[data_short[, "amen_Elevator_in_building"] == "TRUE", "pr
 t7 <- t.test(data_short[data_short[, "amen_Lock_on_bedroom_door"] == "TRUE", "price_log"], 
        data_short[data_short[, "amen_Lock_on_bedroom_door"]  == "FALSE", "price_log"])
 
-t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(round(t1$p.value, 2), round(t2$p.value,2), round(t3$p.value,2), round(t4$p.value, 2), round(t6$p.value,2), round(t7$p.value,2)), Mean_Without = c(round(t1$estimate[1],2), round(t2$estimate[1],2), round(t3$estimate[1],2), round(t4$estimate[1],2), round(t6$estimate[1],2), round(t7$estimate[1],2)), Mean_With = c(round(t1$estimate[2],2), round(t2$estimate[2],2), round(t3$estimate[2],2), round(t4$estimate[2],2), round(t6$estimate[2],2), round(t7$estimate[2],2)))
+t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(round(t1$p.value, 2), round(t2$p.value,2), round(t3$p.value,2), round(t4$p.value, 2), round(t6$p.value,2), round(t7$p.value,2)), Mean_With = c(round(t1$estimate[1],2), round(t2$estimate[1],2), round(t3$estimate[1],2), round(t4$estimate[1],2), round(t6$estimate[1],2), round(t7$estimate[1],2)), Mean_Without = c(round(t1$estimate[2],2), round(t2$estimate[2],2), round(t3$estimate[2],2), round(t4$estimate[2],2), round(t6$estimate[2],2), round(t7$estimate[2],2)))
 
 t_data <- t_data %>% mutate(Difference = Mean_With - Mean_Without)
 
