@@ -286,7 +286,7 @@ m2 <- lm(price_log ~ mean_rent +
            amen_Dryer,
          data = data_short)
 
-stargazer(list(m1,m2), type = "html", single.row = TRUE,  title="Regression Results",  dep.var.labels=c("Price (log)"), covariate.labels=c("Mean Rent", "Distance", "Accomodates","Review Score - Rating", "Review Score - Cleanliness", "Review Score - Location", "Number of Beds", "Amenity - Family friendly", "Amenity - TV", "Amenity - Elevator", "Amenity - Dryer", "Amenity - Kitchen", "Amenity - Washer", "Amenity - Lock on Bedroom Door", "Instant bookable - FALSE", "Cancellation Policy - Moderate", "Cancellation Policy - Strict"))
+stargazer(list(m1,m2), type = "html", single.row = TRUE,  title="Table 7: Regression Results",  dep.var.labels=c("Ln Price"), covariate.labels=c("Mean Rent", "Distance", "Accomodates","Review Score - Rating", "Review Score - Cleanliness", "Review Score - Location", "Number of Beds", "Amenity - Family friendly", "Amenity - TV", "Amenity - Elevator", "Amenity - Dryer", "Amenity - Kitchen", "Amenity - Washer", "Amenity - Lock on Bedroom Door", "Instant bookable - FALSE", "Cancellation Policy - Moderate", "Cancellation Policy - Strict"))
 ```
 
 ## Interpretation
@@ -298,6 +298,27 @@ $$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance)
 41.8 percent of the variation of the observations can be explained with the presented regression model. The standard error of the model in absolute currency is approximately 1.36 GBP off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model.The y-intercept is located at 6.88 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points the price changes if the explanatory variable changes by one unit holding all other independent variables constant. For example, for every additional person a room can accomodate, the price rises by 6.8 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and amenities like the existence of a TV, elevator and dryer have the largest postive effects on the price of a room. The review scores of value had to be taken out of the regression because the inherint endogenity problem: Price is a large factor in determining the review of a guest regarding the price for value. The effect of distance is surprisingly small. This impies that distance to city center is not the best measure to account for geographic differences. 
 
 ## Fitting the model
+
+```{r echo=FALSE}
+high_residuals <- data_model %>%
+  select(price, price_log, residuals) %>%
+  filter(residuals > 0.3)
+
+low_residuals <- data_model %>%
+  select(price, price_log, residuals) %>%
+  filter(residuals <= 0.3)
+
+descriptives_residuals <- data.frame(
+                 Name=c("Data with high residuals", "Data with low residuals"),
+                 
+                 LN_Mean_Rent=c(round(mean(high_residuals$price_log), 2), round(mean(low_residuals$price_log),2)),
+                 
+                 Mean_Rent=c(round(mean(high_residuals$price), 2), round(mean(low_residuals$price),2)))
+
+colnames(descriptives_residuals) = c("Name", "Ln Mean Rent", "Mean Rent")
+
+formattable(descriptives_residuals, caption = "Table 8: Residuals")
+```
 
 A short exploration of the residuals shows that with rising prices, the residuals increase. This implies that our model is worse in predicting the more expensive rooms as the factors chosen do not fully explain the difference in price. The relation between residuals and prices may be explained by a factor the model could not quantify: the attractiveness of the room and the house it is in. As this attractiveness differs across buildings and sometimes even within a building, it is impossible to predict the price of an apartment that exceeds expectations set by the base explanatory variables used in the regression.
 
@@ -318,30 +339,6 @@ p2 <- ggplot(data = data_model, aes(x = predicted, y = price_log)) +
 grid.arrange(p1, p2, ncol = 2)
 ```
 
-```{r echo=FALSE}
-high_residuals <- data_model %>%
-  select(price, price_log, residuals) %>%
-  filter(residuals > 0.3)
-
-low_residuals <- data_model %>%
-  select(price, price_log, residuals) %>%
-  filter(residuals <= 0.3)
-
-descriptives_residuals <- data.frame(
-                 Name=c("Data with high residuals", "Data with low residuals"),
-                 
-                 LN_Mean_Rent=c(round(mean(high_residuals$price_log), 2), round(mean(low_residuals$price_log),2)),
-                 
-                 Mean_Rent=c(round(mean(high_residuals$price), 2), round(mean(low_residuals$price),2)))
-
-formattable(descriptives_residuals, list(
-  Name=formatter(
-    "span",
-    style = x ~ ifelse(x == "Overall", 
-                       style(font.weight = "bold"), NA))))
-
-```
-
 ## Limitations of our model
 
 Due to the scope of this assignment we were not able to address every issue with our data. Several issues and will be discussed here.
@@ -355,7 +352,13 @@ The price of an AirBnB is affected by a large number of factors. We built a mode
 Upon testing for multicollinearity, correlations between the explanatory variables become clear. Those relations might increase the error terms of the model. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually, a VIF greater than 5 is considered critical to the model results. None of the used variables reaches that border value. The Durbin-Watson test shows that the error values are uncorrelated, as visible in the plot of residuals against predicted values.
 
 ```{r echo=FALSE}
-vif(m2)
+t1 <- vif(m2)
+test_data = data.frame(VIF = round(t1, 2))
+rownames(test_data) = c("Mean Rent", "Distance", "Accomodates", "Review Score - Rating", "Review Score - Cleanliness", "Review Score - Location", "Amenity - TV", "Amenity - Elevator", "Amenity - Dryer")
+formattable(test_data, caption = "Table 9: Results Multicollinearity Test")
+
+```
+```{r echo=FALSE}
 durbinWatsonTest(m2)
 data_short$predicted <- predict(m2)
 data_short$residuals <- residuals(m2)
