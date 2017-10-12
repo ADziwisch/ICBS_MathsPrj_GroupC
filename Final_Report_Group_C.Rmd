@@ -116,7 +116,7 @@ From the boxplot and correlation test above, it seems that the distance to the c
 
 In addition to the written reviews, guests can give their hosts star-ratings on the following parameters [see @Airbnb_2017]: Overall experience, accuracy, cleanliness, communication, check in, location and value. Most of those are self-explanatory; accuracy represents the extent to which the online listing represtents the reality, and value is a subjective measure of whether the room was worth the price paid.
 
-The guest ratings are translated into a score out of 10 for the individual categories, and a score out of 100 for the overall score. The mean value for many categories is 9 or 10. Such high scores are frequently seen when feedback from users is collected. For example, Uber considers removing drivers rated on average less than 4.6 stars out of 5 [BI_2015].
+The guest ratings are translated into a score out of 10 for the individual categories, and a score out of 100 for the overall score. The mean value for many categories is 9 or 10. Such high scores are frequently seen when feedback from users is collected. For example, Uber considers removing drivers rated on average less than 4.6 stars out of 5 [@BI_2015].
 
 Since the overall score is submitted independently, rather than calculated from the category scores, it is interesting to see which categories affect the user's overall rating the most. The correlation of the overall score and value, check in and accuracy is very high, suggesting that those categories matter the most for the guest's overall satisfaction. The correlation with price hints that location of the AirBnB is an important determinants of price, as the location rating is highly correlated with the price.
 
@@ -379,7 +379,7 @@ As in any regression model based on ordinary least squares, the coefficients in 
 
 Some of our explanatory variables (for example the distance from the city center) are not linearly related with the price of the property. There is a significant difference between the average price of a room located right in the city center and 5km away, while the difference for rooms located 25km away and 30km away is not very large. This suggests that we could model the relationship more accurately if we used non-linear regression.
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(data = data_short, aes(x = distance, y = price_log)) + geom_smooth(se = FALSE) + theme_classic() + xlab("DISTANCE") + ylab("LN(PRICE)")
 ```
 
