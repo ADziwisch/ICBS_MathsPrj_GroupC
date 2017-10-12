@@ -177,7 +177,7 @@ formattable(descriptives_rating, caption = "Table 3: Descriptives of Rating")
 t1 <- cor.test(data_short$price_log, data_short$accommodates)
 t2 <- cor.test(data_short$price_log, data_short$beds)
 
-t_summary <- data.frame(names = c("Accomodates", "Beds"), p_value = c(fp(t1$p.value), fp(t2$p.value)), conf_low = c(round(t1$conf.int[1], 2), round(t2$conf.int[1], 2)), estimate = c(round(t1$estimate,2), round(t2$estimate,2)), conf_high = c(round(t1$conf.int[2], 2), round(t2$conf.int[2],2)))
+t_summary <- data.frame(names = c("Accomodates", "Beds"), p_value = c((t1$p.value), (t2$p.value)), conf_low = c(round(t1$conf.int[1], 2), round(t2$conf.int[1], 2)), estimate = c(round(t1$estimate,2), round(t2$estimate,2)), conf_high = c(round(t1$conf.int[2], 2), round(t2$conf.int[2],2)))
 
 colnames(t_summary) <- c("Variable", "P-Value", "Conf-Int. Low", "Estimate", "Conf-Int. High")
 
@@ -188,7 +188,7 @@ The variables accommodates (how many people can stay in the property) and beds (
 
 ### Amenities
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=5.5, fig.cap="Figure 4: Count of Amenities"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=5.5, fig.cap="Figure 4: Percentage of Amenities"}
 amen <- select(data_short, contains("amen_"))
 
 amen<-rename(amen,c("amen_Internet"="Internet","amen_Wireless_Internet"="Wifi","amen_Heating"="Heating","amen_Kitchen"="Kitchen","amen_Essentials"="Essentials","amen_Washer"="Washer","amen_Smoke_detector"="Smoke_detector","amen_Shampoo"="Shampoo","amen_Hangers"="Hangers","amen_Iron"="Iron","amen_TV"="TV","amen_Hair_dryer"="Hair_dryer","amen_Carbon_monoxide_detector"="Carbon_monoxide_detector","amen_Laptop_friendly_workspace"="Laptop_friendly","amen_Family/kid_friendly"="Family_friendly","amen_Buzzer/wireless_intercom"="Buzzer_wireless","amen_Dryer"="Dryer","amen_First_aid_kit"="First_aid_kit","amen_Elevator_in_building"="Elevator_in_building","amen_Fire_extinguisher"="Fire_extinguisher","amen_24-hour_check-in"="24_hour_check_in","amen_Free_parking_on_premises"="Free_parking","amen_Breakfast"="Breakfast","amen_Cable_TV"="Cable_TV","amen_Lock_on_bedroom_door"="Lock_on_bedroom_door","amen_Safety_card"="Safety_card","amen_Smoking_allowed"="Smoking_allowed","amen_Pets_live_on_this_property"="Pets_live_here","amen_Hot_tub"="Hot_tub","amen_Wheelchair_accessible"="Wheelchair_accessible","amen_Pets_allowed"="Pets_allowed","amen_Indoor_fireplace"="Indoor_fireplace","amen_Doorman"="Doorman","amen_Keypad"="Keypad","amen_Free_parking_on_street"="Free_parking_on_street","amen_Paid_parking_off_premises"="Paid_parking","amen_Smartlock"="Smartlock","amen_Washer_/_Dryer"="Washer_Dryer","amen_Air_conditioning"="Air_con","amen_Self_Check-In"="Self_Check-In","amen_Gym"="Gym","amen_Lockbox"="Lockbox","amen_Suitable_for_events"="Suitable_for_events","amen_Private_entrance"="Private_entrance","amen_Private_living_room"="Private_living_room","amen_Pool"="Pool","amen_Doorman_Entry"="Doorman_Entry"))
@@ -202,12 +202,12 @@ amen_data <- amen_data[-c(6,17,18,21,36,45,51),]
 amen_data <- amen_data %>% filter(number <= 91 & number >= 15)
 amen_data <- arrange(amen_data , desc(number))
 
-amen_data %>% ggplot() + geom_bar(aes(x = reorder(amen_name, number), y = number), fill = "#00E5FFFF", alpha = .5, stat = 'identity', width = 1) + coord_flip() + theme_minimal() + ylab("NUMBER") + xlab("AMENITY")
+amen_data %>% ggplot() + geom_bar(aes(x = reorder(amen_name, number), y = number), fill = "#00E5FFFF", alpha = .5, stat = 'identity', width = 1) + coord_flip() + theme_minimal() + ylab("SHARE OF FLATS WITH AMENITY") + xlab("AMENITY")
 ```
 
-AirBnB includes some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms. On top of these characteristics, AirBnB contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV to a personal doorman or a pool. In order to analyse these, we introduced dummy variables for 53 different amenities, with 46 resulting in usable data, as well as a variable counting the total number of amenities.
+AirBnB includes some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms. On top of these characteristics, AirBnB contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV to a personal doorman or a pool. In order to analyse these, dummy variables for 53 different amenities, with 46 resulting in usable data, as well as a variable counting the total number of amenities were introduced.
 
-We found 6 amenities which influence the price, including some home essentials such as a TV, a dryer, and a washer and facilities like an elevator. Also, whether the room has a door lock and whether it is a family- and kid-friendly environment matters. The presence of a TV, an elevator, a dryer or a washer tends to have a positive impact on the flat's price, this is especially true for the TV. Interestingly, it seems that AirBnBs that have a kitchen and a lock on the bedroom door seem to be slightly less valued. Perhaps a lock on the bedroom door is more commonly in place in less safe locations.
+Seven amenities influence the price, including some home essentials such as a TV, a dryer, and a washer and facilities like an elevator. Also, whether the room has a door lock and whether it is a family- and kid-friendly environment matters. The presence of a TV, an elevator, a dryer or a washer tends to have a positive impact on the flat's price, this is especially true for the TV. Interestingly, it seems that AirBnBs that have a kitchen and a lock on the bedroom door seem to be slightly less valued. Perhaps a lock on the bedroom door is more commonly in place in less safe locations.
 
 ```{r echo = FALSE}
 t1 <- t.test(data_short[data_short[, "amen_Washer"] == "TRUE", "price_log"], 
@@ -218,26 +218,26 @@ t3 <- t.test(data_short[data_short[, "amen_Family/kid_friendly"] == "TRUE", "pri
        data_short[data_short[, "amen_Family/kid_friendly"]  == "FALSE", "price_log"])
 t4 <- t.test(data_short[data_short[, "amen_Dryer"] == "TRUE", "price_log"], 
        data_short[data_short[, "amen_Dryer"]  == "FALSE", "price_log"])
+t5 <- t.test(data_short[data_short[, "amen_Kitchen"] == "TRUE", "price_log"], 
+       data_short[data_short[, "amen_Kitchen"]  == "FALSE", "price_log"])
 t6 <- t.test(data_short[data_short[, "amen_Elevator_in_building"] == "TRUE", "price_log"], 
        data_short[data_short[, "amen_Elevator_in_building"]  == "FALSE", "price_log"])
 t7 <- t.test(data_short[data_short[, "amen_Lock_on_bedroom_door"] == "TRUE", "price_log"], 
        data_short[data_short[, "amen_Lock_on_bedroom_door"]  == "FALSE", "price_log"])
 
-t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(round(t1$p.value, 2), round(t2$p.value,2), round(t3$p.value,2), round(t4$p.value, 2), round(t6$p.value,2), round(t7$p.value,2)), Mean_With = c(round(t1$estimate[1],2), round(t2$estimate[1],2), round(t3$estimate[1],2), round(t4$estimate[1],2), round(t6$estimate[1],2), round(t7$estimate[1],2)), Mean_Without = c(round(t1$estimate[2],2), round(t2$estimate[2],2), round(t3$estimate[2],2), round(t4$estimate[2],2), round(t6$estimate[2],2), round(t7$estimate[2],2)))
+t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Kitchen", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(round(t1$p.value, 2), round(t2$p.value,2), round(t3$p.value,2), round(t4$p.value, 2), round(t5$p.value, 2), round(t6$p.value,2), round(t7$p.value,2)), Mean_With = c(round(t1$estimate[1],2), round(t2$estimate[1],2), round(t3$estimate[1],2), round(t4$estimate[1],2), round(t5$estimate[1],2), round(t6$estimate[1],2), round(t7$estimate[1],2)), Mean_Without = c(round(t1$estimate[2],2), round(t2$estimate[2],2), round(t3$estimate[2],2), round(t4$estimate[2],2), round(t5$estimate[2],2), round(t6$estimate[2],2), round(t7$estimate[2],2)))
 
 t_data <- t_data %>% mutate(Difference = Mean_With - Mean_Without)
-
+colnames(t_data) <- c("Amenities", "P-Value", "Mean ln(price) With", "Mean ln(price) Without", "Price Difference")
 formattable(t_data, caption = "Table 5: Descriptives of Selected Amenities")
 ```
 
 
 ## Attributes of the ad
 
-In this part, we are going to analyse the attributes of the ad. Based on our intuition, we chose 2 variables that may influence the price - whether the AirBnB is instantly bookable and the strictness of its cancellation policy. 
+Usually, a guest needs to submit a booking request and gets to stay in the property only if the host approves that request. To attract more customers, some hosts allow instant booking of their properties, which is similar to booking a hotel - the user just books the property straight away. In the dataset, TRUE means guests can book the desired property instantly, while FALSE means they have to get approval from the host first.
 
-Usually, a guest needs to submit a booking request and he/she gets to stay in the property only if the host approves that request. To attract more customers, some hosts allow instant booking of their properties, which is similar to booking a hotel - the user just books the property straight away. In our dataset, TRUE means guests can book the desired property instantly, while FALSE means they have to get approval from the host first.
-
-In addition to instant book, hosts also have the right to choose their own cancellation policy. Cancellation policy determines whether or not guests can get a refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get a full refund if the reservation is cancelled within a limited period, typically 24 hours prior to the check in. If moderate, fees are fully refundable but only if cancelled a longer time in advance. Under the strict policy, only 50% of fees may be refunded if the booking is cancelled more than 1 week before check in.
+In addition to instant book, hosts also have the right to choose their own cancellation policy. Cancellation policy determines whether or not guests can get a refund and how they can be refunded. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If flexible, guests may get a full refund if the reservation is cancelled within a limited period, typically 24 hours prior to the check in. If moderate, fees are fully refundable but only if cancelled a longer time in advance. Under the strict policy, only 50% of fees may be refunded if the booking is cancelled more than 1 week before check in. [@Airbnb_2017] While the difference in mean of rooms with instant bookings is insignificant, the correlation between the scale version of cancellation policy is significantly but weakly correlated to the price of the room.
 
 ```{r echo=FALSE}
 t1 <- t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_log"], 
@@ -245,56 +245,58 @@ t1 <- t.test(data_short[data_short[, "instant_bookable"] == "TRUE", "price_log"]
 
 t2 <- cor.test(as.numeric(data_short$cancellation_policy), data_short$price_log)
 
-t_data <- data.frame(attributes = c("Instant Bookable", "Cancellation Policy"), p_vals = c(signif(t1$p.value, 4), signif(t2$p.value, 4)))
+t_data_ad <- data.frame(attributes = c("Instant Bookable", "Cancellation Policy"), p_vals = c(signif(t1$p.value, 4), signif(t2$p.value, 4)))
 
-formattable(t_data, caption = "Table 6: Descriptives of Ad Properties")
+colnames
+
+formattable(t_data_ad, caption = "Table 6: Descriptives of Ad Properties")
 ```
 
-To attract more customers, hosts sometimes  allow instant booking of their properties. While TRUE means guests can book the desired property instantly, FALSE means they have to discuss their plans with the host and wait for approval before they can book. 
-In addition to instant booking, hosts also have the right to choose their own cancellation policy. The cancellation policy decides whether guests can get a refund and how they can be refunded after they cancel a booking. There are several cancellation policies form which hosts can choose, including flexible, moderate, strict and super strict. If the policy is flexible, guests may get a full refund if the reservation is cancelled within limited period, mostly 24 hours prior to the check-in. If it is moderate, fees are fully refundable if it is cancelled one week before the arrival. Under a strict policy, only 50% of fees may be refunded as long as the cancellation is conducted one week prior to check-in.
 
 # Regression model
 
 ```{r echo=FALSE, results='asis'}
 m1 <- lm(price_log ~ mean_rent +
                           distance +
-                          accommodates + 
                           review_scores_rating +
+                          review_scores_accuracy +
+                          review_scores_checkin +
                           review_scores_cleanliness +
+                          review_scores_communication +
                           review_scores_location +
+                          review_scores_value +
+                          accommodates +
                           beds +
-                          `amen_Family/kid_friendly` +
-                          amen_TV +
-                          amen_Elevator_in_building +
                           amen_Dryer +
-                          amen_Kitchen +
-                          amen_Washer +
+                          amen_Elevator_in_building +
+                          `amen_Family/kid_friendly` +
                           amen_Lock_on_bedroom_door +
-                          instant_bookable +
+                          amen_TV +
+                          amen_Washer +
                           cancellation_policy,
          data = data_short)
 
 m2 <- lm(price_log ~ mean_rent +
-           distance +
-           accommodates + 
-           review_scores_rating +
-           review_scores_cleanliness +
-           review_scores_location +
-           amen_TV +
-           amen_Elevator_in_building +
-           amen_Dryer,
+                          distance +
+                          review_scores_cleanliness +
+                          review_scores_location +
+                          accommodates +
+                          amen_Dryer +
+                          amen_Elevator_in_building +
+                          amen_Lock_on_bedroom_door +
+                          amen_TV,
          data = data_short)
+stargazer(list(m1,m2), type = "html", single.row = TRUE,  title="Table 7: Regression Results",  dep.var.labels=c("Ln Price"), covariate.labels=c("Mean Rent", "Distance", "Review Score - Rating", "Review Score - Accuracy", "Review Score - Check-In",  "Review Score - Cleanliness",  "Review Score - Communication", "Review Score - Location", "Review Score - Value", "Accomodates", "Number of Beds", "Amenity - Dryer", "Amenity - Elevator", "Amenity - Family friendly", "Amenity - Lock on Bedroom Door", "Amenity - TV", "Amenity - Washer", "Instant bookable - FALSE", "Cancellation Policy - Moderate", "Cancellation Policy - Strict"))
 
-stargazer(list(m1,m2), type = "html", single.row = TRUE,  title="Table 7: Regression Results",  dep.var.labels=c("Ln Price"), covariate.labels=c("Mean Rent", "Distance", "Accomodates","Review Score - Rating", "Review Score - Cleanliness", "Review Score - Location", "Number of Beds", "Amenity - Family friendly", "Amenity - TV", "Amenity - Elevator", "Amenity - Dryer", "Amenity - Kitchen", "Amenity - Washer", "Amenity - Lock on Bedroom Door", "Instant bookable - FALSE", "Cancellation Policy - Moderate", "Cancellation Policy - Strict"))
 ```
 
 ## Interpretation
 
-As our dependent variable was transformed to its logarithmic version, a log-linear regression model is used to explain the effect of the independent variables on the dependent variable. Some of the amenities had a negative impact on the price, which is conterintuitive. As the effects are small and likely to be caused by random noise, such variables are excluded. Additionally, only variables that are significant for the regression are kept in the model:
+As our dependent variable was transformed to its logarithmic version, a log-linear regression model is used to explain the effect of the independent variables on the dependent variable. Comparing the two versions of the model, it becomes clear that some variables are insignificant, some have a multicollinearity problem and the review scores for value is likely to have an endogenity problem. Additionally, some of the amenities had a negative impact on the price, which is conterintuitive and contradicts the results of the t-test. As the effects are small and likely to be caused by random noise, such variables are excluded:
 
 $$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(accomodates) + \\ \beta_4(review\_scores\_rating) + \beta_5(review\_scores\_cleanliness) + \beta_6(review\_scores\_location) + \\ \beta_7(TV) + \beta_8(elevator) + \beta_9(dryer) + u \end{gather*}$$
 
-41.8 percent of the variation of the observations can be explained with the presented regression model. The standard error of the model in absolute currency is approximately 1.36 GBP off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model.The y-intercept is located at 6.88 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points the price changes if the explanatory variable changes by one unit holding all other independent variables constant. For example, for every additional person a room can accomodate, the price rises by 6.8 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and amenities like the existence of a TV, elevator and dryer have the largest postive effects on the price of a room. The review scores of value had to be taken out of the regression because the inherint endogenity problem: Price is a large factor in determining the review of a guest regarding the price for value. The effect of distance is surprisingly small. This impies that distance to city center is not the best measure to account for geographic differences. 
+42 percent of the variation of the dependent variable can be explained with the presented regression model. The standard error of the model in absolute currency is approximately 1.36 GBP off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model. The y-intercept is located at 7.41 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points the price changes if the explanatory variable changes by one unit holding all other independent variables constant. For example, for every additional person a room can accomodate, the price rises by 15 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and amenities like the existence of a TV, elevator and dryer have the largest postive effects on the price of a room. The review scores of value had to be taken out of the regression because the inherint endogenity problem: Price is a large factor in determining the review of a guest regarding the price for value. The effect of distance is surprisingly small. This impies that distance to city center is not the best measure to account for geographic differences. 
 
 ## Fitting the model
 
@@ -351,12 +353,12 @@ The price of an AirBnB is affected by a large number of factors. We built a mode
 
 ### Multicollinearity
 
-Upon testing for multicollinearity, correlations between the explanatory variables become clear. Those relations might increase the error terms of the model. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually, a VIF greater than 5 is considered critical to the model results. None of the used variables reaches that border value. The Durbin-Watson test shows that the error values are uncorrelated, as visible in the plot of residuals against predicted values.
+Upon testing for multicollinearity, correlations between the explanatory variables become clear. Those relations might increase the error terms of the model. A VIF of four implies that the variance of the estimators in the model are four times higher than if the independent variables were uncorrelated. Usually, a VIF greater than 3 is considered critical to the model results. None of the used variables reaches that border value. The Durbin-Watson test shows that the error values are uncorrelated, as visible in the plot of residuals against predicted values.
 
 ```{r echo=FALSE}
 t1 <- vif(m2)
 t1_data = data.frame(VIF = round(t1, 2))
-rownames(t1_data) = c("Mean Rent", "Distance", "Accomodates", "Review Score - Rating", "Review Score - Cleanliness", "Review Score - Location", "Amenity - TV", "Amenity - Elevator", "Amenity - Dryer")
+rownames(t1_data) = c("Mean Rent", "Distance", "Review Score - Cleanliness", "Review Score - Location", "Accomodates", "Amenity - Dryer", "Amenity - Elevator", "Amenity - Lock on Bedroom", "Amenity - TV")
 formattable(t1_data, caption = "Table 9: Results Multicollinearity Test")
 
 ```
