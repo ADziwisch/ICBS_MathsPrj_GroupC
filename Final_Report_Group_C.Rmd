@@ -36,7 +36,7 @@ lnd_f <- broom::tidy(lnd)
 
 # Introduction
 
-With platforms offering cheap flights and accommodations, travelling around in Europe is common among students nowadays. Sharing economy services such as Airbnb have facilitated the search for a spare room rented out by a private agent. Profits of the platform have skyrocketed in the past years and a typical UK host now earns around 3000 pounds a year [@Cox_2017]. As those profits are paid by the user, understanding the pricing of Airbnb offers becomes crucial.
+With platforms offering cheap flights and accommodations, travelling around in Europe is common among students nowadays. Sharing economy services such as Airbnb have facilitated the search for a spare room rented out by a private agent. Profits of the platform have skyrocketed in the past years and a typical UK host now earns around £3000 a year [@Cox_2017]. As those profits are paid by the user, understanding the pricing of Airbnb offers becomes crucial.
 
 If you are on a tight budget you want to get the best value for your money. At the same time, you have certain expectations about the type of flat, its location and the offered amenities. This paper ‘s aim is to explore the various factors influencing the price and to set up a regression model which explains the pricing on Airbnb. So you can find the right price for the right flat.
 
@@ -55,7 +55,7 @@ colnames(price_desc) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
 formattable(price_desc, caption = "Table 1: Descriptives of the Price")
 ```
 
-A room in London costs on average 50 GBP per night. The summary statistics show that 75% of all AirBnBs are priced at £59 per night or less. However, there are some severe outliers that range up to a maximum of £590.
+A room in London costs on average £50 per night. The summary statistics show that 75 percent of all AirBnBs are priced at £59 per night or less. However, there are some severe outliers that range up to a maximum of £590.
 
 This raises concerns about the normality of its distribution. In fact, the plot to the left shows the distribution is not normal. In order to normalize the presented data set, the price is converted with a natural logarithm.
 
@@ -295,7 +295,7 @@ As our dependent variable was transformed to its logarithmic version, a log-line
 
 $$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(review\_scores\_cleanliness) + \\ \beta_4(review\_scores\_location) + \beta_5(accomodates) + \beta_6(dryer) + \\ \beta_7(elevator) + \beta_8(lock) + \beta_9(TV) + u \end{gather*}$$
 
-42 percent of the variation of the dependent variable can be explained with the presented regression model. The standard error of the model in absolute currency is approximately 1.36 GBP off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model. The y-intercept is located at 7.41 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points the price changes if the explanatory variable changes by one unit holding all other independent variables constant. For example, for every additional person a room can accomodate, the price rises by 15 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and the presence of a TV have the largest postive effects on the price of a room. If there is a lock on the bedroom door the effect on the price is negative. The effect of distance on room price appears to be small but putting it into context reveals that for every kilometer further from Piccadilly Circus the price shrinks by 1.3 percent. That is only a 12min walk.
+42 percent of the variation of the dependent variable can be explained with the presented regression model. The standard error of the model in absolute currency is approximately £1.36 off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model. The y-intercept is located at £7.41. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points the price changes if the explanatory variable changes by one unit holding all other independent variables constant. For example, for every additional person a room can accomodate, the price rises by 15 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and the presence of a TV have the largest postive effects on the price of a room. If there is a lock on the bedroom door the effect on the price is negative. The effect of distance on room price appears to be small but putting it into context reveals that for every kilometer further from Piccadilly Circus the price shrinks by 1.3 percent. That is only a 12min walk.
 
 ## Fitting the model
 
@@ -345,7 +345,7 @@ formattable(t2_data, caption = "Table 10: Results Durbin Watson Test")
 
 ### Sensitivity to outliers
 
-As in any regression model based on ordinary least squares, the coefficients in our model are affected by outliers. Some of the properties in our data set cost more than \$400 per night, while most of them cost below \$100. The outliers may have disproportionately affect our coefficients, making them less accurate for the remaining variables. However, as it would be bad practice to exclude certain observations of the regression, none of them are treated.
+As in any regression model based on ordinary least squares, the coefficients in our model are affected by outliers. Some of the properties in our data set cost more than £400 per night, while most of them cost below £100. The outliers may have disproportionately affect our coefficients, making them less accurate for the remaining variables. However, as it would be bad practice to exclude certain observations of the regression, none of them are treated.
 
 ### Multicollinearity
 
