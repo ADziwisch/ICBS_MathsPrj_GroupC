@@ -36,9 +36,9 @@ lnd_f <- broom::tidy(lnd)
 
 # Introduction
 
-Moving to a new city on a tight budget is challenging. Especially, a metropolis like London has high rents and a competitive market that makes it difficult to find accommodation that has the right attributes at the right price. Sharing economy services such as AirBnB have faciliated the search for a spare room rented out by a private agent. The available rooms and apartments are furnished for the user to settle right in. But how do you know if the price you are paying for your flat is actually a fair price?
+Moving to a new city on a tight budget is challenging. Especially, a metropolis like London has high rents and a competitive market that makes it difficult to find accommodation that has the right attributes at the right price. Sharing economy services such as AirBnB have faciliated the search for a spare room rented out by a private agent. The available rooms and apartments are available for the user to settle right in. But how do you know if the price you are paying for your flat is actually a fair price?
 
-This paper aims to create a model which will identify how much AirBnB guests value different attributes of London rooms, and which the guests can refer to in order to check whether they are paying an appropriate price for their AirBnB.
+This paper aims to create a model which will identify how much AirBnB guests value different attributes of London rooms. The guests can also refer to in order to check whether they are paying an appropriate price for their AirBnB.
 
 # Description of the dataset
 
