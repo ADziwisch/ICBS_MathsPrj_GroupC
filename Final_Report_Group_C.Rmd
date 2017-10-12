@@ -1,5 +1,5 @@
 ---
-title: "AirBnB in London - Finding the right price"
+title: "Airbnb in London - Finding the right price"
 author: "Nina Hauser, Lingyao Li, Jingyin Qiu, Ching Chi Chen, Petr Perina, Alexander Dziwisch"
 date: "13.10.2017"
 output:
@@ -36,13 +36,13 @@ lnd_f <- broom::tidy(lnd)
 
 # Introduction
 
-With platforms offering cheap flights and accommodations, travelling around in Europe is common among students nowadays. Sharing economy services such as Airbnb have facilitated the search for a spare room rented out by a private agent. Profits of the platform have skyrocketed in the past years and a typical UK host now earns around 3000 pounds a year [@Cox_2017]. As those profits are paid by the user, understanding the pricing of Airbnb offers becomes crucial.
+With platforms offering cheap flights and accommodation, travelling around in Europe is common among students nowadays. Sharing economy services such as Airbnb have facilitated the search for a spare room rented out by a private agent. Profits of the platform have skyrocketed in the past years and a typical UK host now earns around £3,000 a year [@Cox_2017]. As those profits are paid by the user, understanding the pricing of Airbnb offers becomes crucial.
 
-If you are on a tight budget you want to get the best value for your money. At the same time, you have certain expectations about the type of flat, its location and the offered amenities. This paper ‘s aim is to explore the various factors influencing the price and to set up a regression model which explains the pricing on Airbnb. So you can find the right price for the right flat.
+If you are on a tight budget you want to get the best value for your money. At the same time, you have certain expectations about the type of flat, its location and the offered amenities. This paper's aim is to explore the various factors influencing the price and to set up a regression model which explains the pricing on Airbnb, so you can find the right price for the right flat.
 
 # Description of the dataset
 
-The dataset of this paper covers all AirBnB offerings in London as per the 4th and 5th of March 2017. It contains 53,904 observations for 95 different variables. Its source is the website "Inside AirBnB - Adding data to the debate" [@Cox_2017]. This is an independent and non-commercial project aiming to examine the effect of AirBnB activities on urban development.
+The dataset of this paper covers all Airbnb offerings in London as per the 4th and 5th of March 2017. It contains 53,904 observations for 95 different variables. Its source is the website "Inside Airbnb - Adding data to the debate" [@Cox_2017]. This is an independent and non-commercial project aiming to examine the effect of Airbnb activities on urban development.
 
 To allow this investigation to be more focused, the dataset was narrowed down. Only private rooms with at least three valid ratings were included. The resulting dataset has 6,495 observations for 78 variables.
 
@@ -55,7 +55,7 @@ colnames(price_desc) <- c("Min", "Q1", "Median", "Mean", "Q3", "Max")
 formattable(price_desc, caption = "Table 1: Descriptives of the Price")
 ```
 
-A room in London costs on average 50 GBP per night. The summary statistics show that 75% of all AirBnBs are priced at £59 per night or less. However, there are some severe outliers that range up to a maximum of £590.
+A room in London costs on average £50 per night. The summary statistics show that 75 percent of all Airbnbs are priced at £59 per night or less. However, there are some severe outliers that range up to a maximum of £590.
 
 This raises concerns about the normality of its distribution. In fact, the plot to the left shows the distribution is not normal. In order to normalize the presented data set, the price is converted with a natural logarithm.
 
@@ -74,11 +74,11 @@ grid.arrange(p1, p2, ncol = 2, widths = c(1.5, 1))
 cor.test(data_short$mean_rent, data_short$price_log)
 ```
 
-With London being one of the most expensive cities to live, rent prices are a major cost of being a host on AirBnB. Rents are also an interesting indicator of the attractiveness of the neighbourhood. Therefore, the impact of the underlying rent on the AirBnB price has to be accounted for. The initial dataset holds no information on the regular rent price at the location of an AirBnB. Fortunately, a website called “Find Properly” [@Findproperly_2017]  utilizes the data from Zoopla and provides the rent and selling price for each London region, divided per post code. Using the post code, the average weekly rent for 1-bed properties is merged with the AirBnB data set. The matching was done based on the Outward code. 
+With London being one of the most expensive cities to live, rent prices are a major cost of being a host on Airbnb. Rents are also an interesting indicator of the attractiveness of the neighbourhood. Therefore, the impact of the underlying rent on the Airbnb price has to be accounted for. The initial dataset holds no information on the regular rent price at the location of an Airbnb. Fortunately, a website called “Find Properly” [@Findproperly_2017]  utilizes the data from Zoopla and provides the rent and selling price for each London region, divided per post code. Using the post code, the average weekly rent for 1-bed properties is merged with the Airbnb data set. The matching was done based on the Outward code. 
 
-Geographical mapping the mean rent and the logarithmically transformed AirBnB price reveals the positive correlation (+ 0.48) between the variables. Nevertheless, it also becomes clear that there is more to an AirBnB price than just the average rent in the particular neighbourhood.
+Geographically mapping the mean rent and the logarithmically transformed Airbnb price reveals the positive correlation (+ 0.48) between the variables. Nevertheless, it also becomes clear that there is more to an Airbnb price than just the average rent in the particular neighbourhood.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 2: Mapping Rent Prices vs. AirBnB Prices"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 2: Mapping Rent Prices vs. Airbnb Prices"}
 map1 <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_short, aes(east, north, color = mean_rent), alpha = 0.5, size = 1) +
@@ -100,13 +100,13 @@ grid.arrange(map1, map2, ncol = 2)
 t1 <- cor.test(data_short$distance, data_short$price_log)
 ```
 
-When choosing an AirBnB in London, staying close to the city centre is prefered by many. Distance is defined as the distance to the touristic city centre - Picadilly Circus. It was calculated by using the Haversine formula [@Reid_2011] and the geographic coordinates of Picadilly Circus (Longitude: -0.133869, Latitude: 51.510067) [@LatLong]. The correlation between distance and the logarithmic AirBnB price is negative and weak (-0.39). The closer the property is to the city center, the higher the price is. Upon analyzing the different bins, the most high end outliers are located close to Picadilly Circus. Price range also shrinks the further the flat is from the city center.
+When choosing an Airbnb in London, staying close to the city centre is preferred by many. Distance is defined as the distance to the touristic city centre - Picadilly Circus. It was calculated by using the Haversine formula [@Reid_2011] and the geographic coordinates of Picadilly Circus (Longitude: -0.133869, Latitude: 51.510067) [@LatLong]. The correlation between distance and the logarithmic Airbnb price is negative and weak (-0.39). The closer the property is to the city center, the higher the price is. Upon analyzing the different bins, the most positive outliers are located in the first three bins, i.e. high-end rooms are situated close to Picadilly Circus. Price range also shrinks the further the flat is from the city center.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, fig.cap="Figure 3: Mapping Rent Prices vs. AirBnB Prices"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, fig.cap="Figure 3: Rent Prices vs. Airbnb Prices in London"}
 cuts <- data.frame(price_log = data_short$price_log, dist_bin = cut(data_short$distance, 10))
 
 cuts %>% ggplot() + geom_boxplot(aes(x = dist_bin, y = price_log), fill = "#00E5FFFF", alpha = .5, color = "#333333") + theme_minimal() + coord_flip() + scale_x_discrete(limits = rev(levels(cuts$dist_bin))) +
-  ylab("LN(PRICE)") + xlab("DISTANCE")
+  ylab("LN(PRICE)") + xlab("DISTANCE IN KM")
 ```
 
 
@@ -116,7 +116,7 @@ Reviews could be a useful indicator of various characteristics of the room adver
 
 The guest ratings are translated into a score out of 10 for the individual categories, and a score out of 100 for the overall score. The mean value for many categories is 9 or 10. Such high scores are frequently seen when feedback from users is collected. For example, Uber considers removing drivers rated on average less than 4.6 stars out of 5 [@BI_2015].
 
-Since the overall score is submitted independently, rather than calculated from the category scores, it is interesting to see which categories affect the user's overall rating the most. All the subcategory rating have at least a moderate, positive relation to the overall score. The correlations between the overall score and value, check in and accuracy are the strongest, suggesting that those categories matter most for the guest's overall satisfaction. In general, there is no significant relation between the different rating scores and price, suggesting the use of these indicators will have little effect on the goodness of fit. Location, however, has a weak positive correlation to the logarithmic price, making it an interesting indicator for the security, comfort and attractiveness of the neighbourhood.
+Since the overall score is submitted independently, rather than calculated from the category scores, it is interesting to see which categories affect the user's overall rating the most. All the subcategory rating have at least a moderate, positive relation to the overall score. The correlations between the overall score and value, check in and accuracy are the strongest, suggesting that those categories matter most for the guest's overall satisfaction. In general, there is no significant relation between the different rating scores and price, suggesting the use of these indicators will have little effect on the goodness of fit. Score of location, however, has a weak positive correlation to the logarithmic price, making it an interesting indicator for the security, comfort and attractiveness of the neighbourhood.
 
 ```{r echo=FALSE}
 #This code creates a nice looking table! Just change the name and content of the columns!
@@ -177,14 +177,14 @@ formattable(descriptives_rating, caption = "Table 3: Descriptives of Rating")
 t1 <- cor.test(data_short$price_log, data_short$accommodates)
 t2 <- cor.test(data_short$price_log, data_short$beds)
 
-t_summary <- data.frame(names = c("Accomodates", "Beds"), p_value = c((t1$p.value), (t2$p.value)), conf_low = c(round(t1$conf.int[1], 2), round(t2$conf.int[1], 2)), estimate = c(round(t1$estimate,2), round(t2$estimate,2)), conf_high = c(round(t1$conf.int[2], 2), round(t2$conf.int[2],2)))
+t_summary <- data.frame(names = c("Accommodates", "Beds"), p_value = c((t1$p.value), (t2$p.value)), conf_low = c(round(t1$conf.int[1], 2), round(t2$conf.int[1], 2)), estimate = c(round(t1$estimate,2), round(t2$estimate,2)), conf_high = c(round(t1$conf.int[2], 2), round(t2$conf.int[2],2)))
 
 colnames(t_summary) <- c("Variable", "P-Value", "Conf-Int. Low", "Estimate", "Conf-Int. High")
 
 formattable(t_summary, caption = "Table 4: Descriptives of Capacity")
 ```
 
-The variables accommodates (how many people can stay in the property) and beds (the number of beds in the property) give an indication of the overall capacity of the AirBnB. Both variables have a relation to the room price that is significantly different to zero. However, both correlations are weak, suggesting that even though price rises with capacity, it rises slowly.
+The variables accommodates (how many people can stay in the property) and beds (the number of beds in the property) give an indication of the overall capacity of the Airbnb. Both variables have a relation to the room price that is significantly different to zero. However, both correlations are weak, suggesting that even though price rises with capacity, it rises slowly.
 
 ### Amenities
 
@@ -205,9 +205,9 @@ amen_data <- arrange(amen_data , desc(number))
 amen_data %>% ggplot() + geom_bar(aes(x = reorder(amen_name, number), y = number), fill = "#00E5FFFF", alpha = .5, stat = 'identity', width = 1) + coord_flip() + theme_minimal() + ylab("SHARE OF FLATS WITH AMENITY") + xlab("AMENITY")
 ```
 
-AirBnB includes some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms. On top of these characteristics, AirBnB contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV to a personal doorman or a pool. In order to analyse these, dummy variables for 53 different amenities, with 46 resulting in usable data, as well as a variable counting the total number of amenities were introduced.
+Airbnb includes some general information on the property such as the room type, the number of people that can be accommodated or the number of bathrooms. On top of these characteristics, Airbnb contains information on a wide range of amenities for every flat. These range from the availability of Internet and a TV to a personal doorman or a pool. In order to analyse these, dummy variables for 53 different amenities, with 46 resulting in usable data, as well as a variable counting the total number of amenities were introduced.
 
-To reduce the count, seven amenities that lead to a significant difference in price were chosen. Prioritized were some home essentials such as access to a kitchen, a lock to secure the personal space, a TV, a dryer and a washer, facilities like an elevator and the family-friendliness of the room. The presence of a TV, an elevator, a dryer or a washer as well as the family friendliness of a room tends to have a positive impact on the flat's price, this is especially true for the TV. Interestingly, it seems that AirBnBs that have acces to a kitchen and a lock on the bedroom door seem to be slightly less valued. Perhaps a lock on the bedroom door is more commonly in place in less safe locations.
+To reduce the count, seven amenities that lead to a significant difference in price were chosen. Prioritized were some home essentials such as access to a kitchen, a lock to secure the personal space, a TV, a dryer and a washer, facilities like an elevator and the family-friendliness of the room. The presence of a TV, an elevator, a dryer or a washer as well as the family friendliness of a room tends to have a positive impact on the flat's price, this is especially true for the TV. Interestingly, it seems that Airbnbs that have access to a kitchen and a lock on the bedroom door seem to be slightly less valued. Perhaps a lock on the bedroom door is more commonly in place in less safe locations.
 
 ```{r echo = FALSE}
 t1 <- t.test(data_short[data_short[, "amen_Washer"] == "TRUE", "price_log"], 
@@ -285,17 +285,17 @@ m2 <- lm(price_log ~ mean_rent +
                           amen_Lock_on_bedroom_door +
                           amen_TV,
          data = data_short)
-stargazer(list(m1,m2), type = "html", single.row = TRUE,  title="Table 7: Regression Results",  dep.var.labels=c("Ln Price"), covariate.labels=c("Mean Rent", "Distance", "Review Score - Rating", "Review Score - Accuracy", "Review Score - Check-In",  "Review Score - Cleanliness",  "Review Score - Communication", "Review Score - Location", "Review Score - Value", "Accomodates", "Number of Beds", "Amenity - Dryer", "Amenity - Elevator", "Amenity - Family friendly", "Amenity - Lock on Bedroom Door", "Amenity - TV", "Amenity - Washer", "Instant bookable - FALSE", "Cancellation Policy - Moderate", "Cancellation Policy - Strict"))
+stargazer(list(m1,m2), type = "html", single.row = TRUE,  title="Table 7: Regression Results",  dep.var.labels=c("Ln Price"), covariate.labels=c("Mean Rent", "Distance", "Review Score - Rating", "Review Score - Accuracy", "Review Score - Check-In",  "Review Score - Cleanliness",  "Review Score - Communication", "Review Score - Location", "Review Score - Value", "Accommodates", "Number of Beds", "Amenity - Dryer", "Amenity - Elevator", "Amenity - Family friendly", "Amenity - Lock on Bedroom Door", "Amenity - TV", "Amenity - Washer", "Instant bookable - FALSE", "Cancellation Policy - Moderate", "Cancellation Policy - Strict"))
 
 ```
 
 ## Interpretation
 
-As our dependent variable was transformed to its logarithmic version, a log-linear regression model is used to explain the effect of the independent variables on the dependent variable. Comparing the two versions of the model, it becomes clear that some variables are insignificant, some have a multicollinearity problem and the review scores for value is likely to have an endogenity problem. Additionally, some of the amenities had a negative impact on the price, which is conterintuitive and contradicts the results of the t-test. As the effects are small and likely to be caused by random noise, such variables are excluded:
+As our dependent variable was transformed to its logarithmic version, a log-linear regression model is used to explain the effect of the independent variables on the dependent variable. Comparing the two versions of the model, it becomes clear that some variables are insignificant, some have a multicollinearity problem and the review score for value is likely to have an endogeneity problem, as the rating of the user is dependent on the price of the ad. Additionally, some of the amenities had a negative impact on the price, which is counterintuitive and contradicts the results of the t-test. As the effects are small and likely to be caused by random noise, such variables are excluded:
 
-$$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(review\_scores\_cleanliness) + \\ \beta_4(review\_scores\_location) + \beta_5(accomodates) + \beta_6(dryer) + \\ \beta_7(elevator) + \beta_8(lock) + \beta_9(TV) + u \end{gather*}$$
+$$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance) + \beta_3(review\_scores\_cleanliness) + \\ \beta_4(review\_scores\_location) + \beta_5(accommodates) + \beta_6(dryer) + \\ \beta_7(elevator) + \beta_8(lock) + \beta_9(TV) + u \end{gather*}$$
 
-42 percent of the variation of the dependent variable can be explained with the presented regression model. The standard error of the model in absolute currency is approximately 1.36 GBP off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model. The y-intercept is located at 7.41 GBP. However, there will not be an apartment that does have a rent of zero or can accomodate no one. Therefore, the intercept has to used rather carefully. The other coefficients are explaining by how many percentage points the price changes if the explanatory variable changes by one unit holding all other independent variables constant. For example, for every additional person a room can accomodate, the price rises by 15 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and the presence of a TV have the largest postive effects on the price of a room. If there is a lock on the bedroom door the effect on the price is negative. The effect of distance on room price appears to be small but putting it into context reveals that for every kilometer further from Piccadilly Circus the price shrinks by 1.3 percent. That is only a 12min walk.
+42 percent of the variance of the dependent variable can be explained by the variance in the independent variables. The standard error of the model is 0.307 off from the real value and the F-statistic is highly significant. Thus, the model provides a far better explanation than just the fit intercept model. The y-intercept is located at £7.41. In regard to the variables in the model, the intercept is not meaningful because there will be no room advertised with a capacity of zero people. The other coefficients show by how many percentage points the price changes if the explanatory variable changes by one unit holding all other independent variables constant. For example, for every additional person a room can accommodate, the price rises by 15 percent. The former, the review scores for location as an indicator for attractiveness of the neighbourhood and the presence of a TV have the largest positive effects on the price of a room. If there is a lock on the bedroom door the effect on the price is negative. The effect of distance on room price appears to be small but putting it into context reveals that for every kilometer further from Piccadilly Circus the price shrinks by 1.3 percent. 
 
 ## Fitting the model
 
@@ -323,7 +323,7 @@ colnames(descriptives_residuals) = c("Name", "Mean LN Price", "Mean Price")
 formattable(descriptives_residuals, caption = "Table 8: Residuals")
 ```
 ### Residuals
-A short exploration of the residuals shows that the mean of observations with larger residuals was higher compared to the other observations. As the presented scatter plot illustrates, the model is worse in predicting more expensive rooms accuaretly. The factors chosen do not fully explain the difference in price. The Durbin-Watson test shows that the error values are uncorrelated.
+A short exploration of the residuals shows that the mean of observations with larger residuals was higher compared to the other observations. As the presented scatter plot illustrates, the model is worse in predicting more expensive rooms accurately. The factors chosen do not fully explain the difference in price. The Durbin-Watson test shows that the error values are uncorrelated.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 5: Residuals and ln(price)"}
 
@@ -345,7 +345,7 @@ formattable(t2_data, caption = "Table 10: Results Durbin Watson Test")
 
 ### Sensitivity to outliers
 
-As in any regression model based on ordinary least squares, the coefficients in our model are affected by outliers. Some of the properties in our data set cost more than \$400 per night, while most of them cost below \$100. The outliers may have disproportionately affect our coefficients, making them less accurate for the remaining variables. However, as it would be bad practice to exclude certain observations of the regression, none of them are treated.
+As in any regression model based on ordinary least squares, the coefficients in our model are affected by outliers. Some of the properties in our data set cost more than £400 per night, while most of them cost below £100. The outliers may have disproportionately affect our coefficients, making them less accurate for the remaining variables. However, as it would be bad practice to exclude certain observations of the regression, none of them are treated.
 
 ### Multicollinearity
 
@@ -354,13 +354,13 @@ Most correlated variables were already excluded from the regression, as those re
 ```{r echo=FALSE}
 t1 <- vif(m2)
 t1_data = data.frame(VIF = round(t1, 2))
-rownames(t1_data) = c("Mean Rent", "Distance", "Review Score - Cleanliness", "Review Score - Location", "Accomodates", "Amenity - Dryer", "Amenity - Elevator", "Amenity - Lock on Bedroom", "Amenity - TV")
+rownames(t1_data) = c("Mean Rent", "Distance", "Review Score - Cleanliness", "Review Score - Location", "Accommodates", "Amenity - Dryer", "Amenity - Elevator", "Amenity - Lock on Bedroom", "Amenity - TV")
 formattable(t1_data, caption = "Table 9: Results Multicollinearity Test")
 ```
 
 ### Omitted variable bias
 
-The price of an AirBnB is affected by a large number of factors. The presented model includes some of them, but it was not feasible or possible to include data concerning every single possible determinant. As a result, the model likely suffers from omitted variable bias. It under- or overestimates the effect of some of the existing factors to compensate for the missing information, making the model less reliable. 
+The price of an Airbnb is affected by a large number of factors. The presented model includes some of them, but it was not feasible or possible to include data concerning every single possible determinant. As a result, the model likely suffers from omitted variable bias. It under- or overestimates the effect of some of the existing factors to compensate for the missing information, making the model less reliable. 
 
 
 ### Lack of clustering
@@ -369,7 +369,7 @@ By putting all properties into one model, we ignore the fact that there might be
 
 ### Limitations
 
-The dataset does not contain several important variables, such as the size of the room, the proximity of the flat to a tube station, the age of the flat,the quality of the equipment and furniture in the flat or the attractiveness of the apartment and the building. Additionally, the attractiveness of the room and the house it is in were not quantifiable. As this attractiveness differs across buildings and sometimes even within a building, it is impossible to predict the price of an apartment that exceeds expectations set by the base explanatory variables used in the regression. 
+The dataset does not contain several important variables, such as the size of the room, the proximity of the flat to a tube station, the age of the flat, the quality of the equipment and furniture in the flat or the attractiveness of the apartment and the building. Additionally, the attractiveness of the room and the house it is in were not quantifiable. As this attractiveness differs across buildings and sometimes even within a building, it is impossible to predict the price of an apartment that exceeds expectations set by the base explanatory variables used in the regression. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 6: Predicted and Real Value"}
 ggplot(data = data_model, aes(x = predicted, y = price_log)) +
@@ -381,6 +381,6 @@ ggplot(data = data_model, aes(x = predicted, y = price_log)) +
 
 # Conclusion
 
-Despite the fact that the presented model has obvious limitations regarding factors that could not be quantified, it has direct implications for finding a reasonably prices apartment. Many attributes important for someone searching for a room, like WiFi and the existence of a proper equipped kitchen, have small effects on the room price, as they are present in most London apartments. A traveller can therefore expect to have those properties present. Luxury amenities like the presence of an elevator, a TV and a dryer create costs. Depending on the standards of the guest, these can be added if the budget is extended. It is also good advice to check apartments in less attractive neighbourhoods to save money. Regarding cleanliness, a well maintained room will cost more. Looking at these different attributes of an AirBnB ad, the user is able to determine whether the price of the apartment is actually fair, which was the aim of this report. As especially high prices could not be explained in the model, a prediction is likely to return a base price rather than a highly attractive room in a good apartment in a nice building. In order to improve the scope of this paper, the following extensions should be recommended.
+Despite the fact that the presented model has obvious limitations regarding factors that could not be quantified, it has direct implications for finding a reasonably priced apartment. Many attributes important for someone searching for a room, like WiFi and the access to a properly equipped kitchen, have small effects on the room price, as they are present in most London apartments. Luxury amenities like the presence of an elevator, a TV and a dryer create costs. It is also good advice to check apartments in less attractive neighbourhoods to save money. Regarding cleanliness, a well-maintained room will be more expensive. Looking at these different attributes of an Airbnb ad, the user is able to determine whether the price of the apartment is actually fair, which was the aim of this report. In order to improve the scope of this paper, the following extension are recommended: Machine learning and picture research methods could provide more objective measures of the attractiveness of the flat, building and neighbourhood. With a broader exploration of the pictures provided in the advertisements, an indicator of room standard could be implemented. 
 
 # Bibliography
