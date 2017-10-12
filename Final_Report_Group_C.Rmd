@@ -177,7 +177,7 @@ formattable(descriptives_rating, caption = "Table 3: Descriptives of Rating")
 t1 <- cor.test(data_short$price_log, data_short$accommodates)
 t2 <- cor.test(data_short$price_log, data_short$beds)
 
-t_summary <- data.frame(names = c("Accommodates", "Beds"), p_value = c(round(t1$p.value,2), round(t2$p.value,2)), conf_low = c(round(t1$conf.int[1], 2), round(t2$conf.int[1], 2)), estimate = c(round(t1$estimate,2), round(t2$estimate,2)), conf_high = c(round(t1$conf.int[2], 2), round(t2$conf.int[2],2)))
+t_summary <- data.frame(names = c("Accomodates", "Beds"), p_value = c(fp(t1$p.value), fp(t2$p.value)), conf_low = c(round(t1$conf.int[1], 2), round(t2$conf.int[1], 2)), estimate = c(round(t1$estimate,2), round(t2$estimate,2)), conf_high = c(round(t1$conf.int[2], 2), round(t2$conf.int[2],2)))
 
 colnames(t_summary) <- c("Variable", "P-Value", "Conf-Int. Low", "Estimate", "Conf-Int. High")
 
