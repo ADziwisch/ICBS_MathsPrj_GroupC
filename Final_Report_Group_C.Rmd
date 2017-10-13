@@ -80,7 +80,7 @@ With London being one of the most expensive cities to live, rent prices are a ma
 
 Geographically mapping the mean rent and the logarithmically transformed Airbnb price reveals the positive correlation (+ 0.48) between the variables. Nevertheless, it also becomes clear that there is more to an Airbnb price than just the average rent in the particular neighbourhood.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 2: Mapping Rent Prices vs. Airbnb Prices"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 2: Rent Prices vs. Airbnb Prices in London"}
 map1 <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_short, aes(east, north, color = mean_rent), alpha = 0.5, size = 1) +
@@ -106,7 +106,7 @@ t1 <- cor.test(data_short$distance, data_short$price_log)
 
 When choosing an Airbnb in London, staying close to the city centre is preferred by many. Distance is defined as the distance to the touristic city centre - Picadilly Circus. It was calculated by using the Haversine formula [@Reid_2011] and the geographic coordinates of Picadilly Circus (Longitude: -0.133869, Latitude: 51.510067) [@LatLong]. The correlation between distance and the logarithmic Airbnb price is negative and weak (-0.39). The closer the property is to the city center, the higher the price is. Upon analyzing the different bins, the most positive outliers are located in the first three bins, i.e. high-end rooms are situated close to Picadilly Circus. Price range also shrinks the further the flat is from the city center.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, fig.cap="Figure 3: Rent Prices vs. Airbnb Prices in London"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, fig.cap="Figure 3: Distribution of Airbnb prices by Distance from City Centre"}
 cuts <- data.frame(price_log = data_short$price_log, dist_bin = cut(data_short$distance, 10))
 
 cuts %>% ggplot() + geom_boxplot(aes(x = dist_bin, y = price_log), fill = "#00E5FFFF", alpha = .5, color = "#333333") + theme_minimal() + coord_flip() + scale_x_discrete(limits = rev(levels(cuts$dist_bin))) +
@@ -336,7 +336,7 @@ formattable(t2_data, caption = "Table 10: Results Durbin Watson Test")
 
 A short exploration of the residuals shows that the mean of observations with larger residuals was higher compared to the other observations. As the presented scatter plot illustrates, the model is less accurate on explaining more expensive rooms. The factors chosen do not fully explain the difference in price. A Durbin-Watson test on the regression model shows that the error values are uncorrelated.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 5: Residuals and ln(price)"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 4: Residuals and ln(price)"}
 
 data_model <- data.frame(price = data_short$price, price_log = data_short$price_log, predicted = m2$fitted.values, residuals = m2$residuals)
 
