@@ -38,15 +38,17 @@ fp <- function(x){ if(x < 0.01) { return("< 0.01") } else { return(round(x,2))} 
 
 # Introduction
 
-With platforms offering cheap flights and accommodation, travelling around in Europe is common among students nowadays. Sharing economy services such as Airbnb have facilitated the search for a spare room rented out by a private agent. Profits of the platform have skyrocketed in the past years and a typical UK host now earns around £3,000 a year [@Indi_2017]. As those profits are paid by the user, understanding the pricing of Airbnb offers becomes crucial.
+With platforms offering cheap flights and accommodation, travelling in Europe is common among students. Sharing economy services such as Airbnb have facilitated the search for spare rooms rented out by private agents that often provide a better value for money than hotels and hostels of similar standard.
 
-If you are on a tight budget you want to get the best value for your money. At the same time, you have certain expectations about the type of flat, its location and the offered amenities. This paper's aim is to explore the various factors influencing the price and to set up a regression model which explains the pricing on Airbnb, so you can find the right price for the right flat.
+As an Airbnb user, you have certain expectations about the location, properties, the booking and cancellation flexibility of the advertised room. The search algorithm of Airbnb makes it easy to find rooms that cater to those needs. But at the same time, you want to get the best value for money. How do you know whether the price offered is actually a fair price? A typical UK host earns around £3,000 a year [@Indi_2017]. As profits of both hosts and the platform itself have skyrocketed in the past years, you want to make sure you do not overpay. Currently, travelers do not have access to a tool that allows them to check whether the price they are paying is a fair price for the room advertised. This paper’s aim is to explore the various factors influencing the price of a room on Airbnb and to set up a regression model that can be used as a tool to evaluate the pricing of available rooms.
 
 # Description of the dataset
 
 The dataset of this paper covers all Airbnb offerings in London as per the 4th and 5th of March 2017. It contains 53,904 observations for 95 different variables. Its source is the website "Inside Airbnb - Adding data to the debate" [@Cox_2017]. This is an independent and non-commercial project aiming to examine the effect of Airbnb activities on urban development.
 
-To allow this investigation to be more focused, the dataset was narrowed down. Only private rooms with at least three valid ratings were included. The resulting dataset has 7,020 observations for 78 variables. All data, modification code and documents can be accessed via the <a href="https://github.com/ADziwisch/ICBS_MathsPrj_GroupC">Groups GitHub Repository</a>.
+To allow this investigation to be more focused, the dataset was narrowed down. Only private rooms with at least three valid ratings were included. The resulting dataset has 7,020 observations for 78 variables. The independent variables chosen to explain the price are the underlying flat rent, location, properties of the room, indicated by the reviews, capacity and amenities as well some characteristics of the ad such as the cancellation and booking policies.
+
+All data, modification code and documents can be accessed via the <a href="https://github.com/ADziwisch/ICBS_MathsPrj_GroupC">Groups GitHub Repository</a>.
 
 ## Price
 
@@ -113,8 +115,9 @@ cuts %>% ggplot() + geom_boxplot(aes(x = dist_bin, y = price_log), fill = "#00E5
   ylab("ln(Price)") + xlab("Distance in km")
 ```
 
+## Property Characteristics
 
-## Reviews
+### Reviews
 
 Reviews could be a useful indicator of various characteristics of the room advertised. In addition to the written reviews, guests can give their hosts star-ratings on the following parameters [@Airbnb_2017]: Overall experience, accuracy, cleanliness, communication, check in, location and value. Most of those are self-explanatory; accuracy represents the extent to which the online listing represtents the reality, and value is a subjective measure of whether the room was worth the price paid.
 
@@ -172,8 +175,6 @@ descriptives_rating <- data.frame(
 colnames(descriptives_rating) = c("Name", "Minimum", "Maximum", "Mean", "Correlation to Overall Score", "Correlation to Price")
 formattable(descriptives_rating, caption = "Table 3: Correlation Analyses on Review Scores")
 ```
-
-## Property Characteristics
 
 ### Accommodates and Beds
 
@@ -383,8 +384,8 @@ ggplot(data = data_model, aes(x = predicted, y = price_log)) +
 
 # Conclusion
 
-The results of this paper have direct implications on understanding the pricing of Airbnbs in London. Most apartments will have a price below £100, with some highly expensive exceptions. Secondly, location is the predominant factor on the price. Both mean rent, which accounts for the attractiveness of the neighbourhood, and the distance to city centre have a strong impact on the regression model. So, when on a short budget, deductions on the location can be recommended.<br>
-On the other hand, only some of the farther-reaching factors showed a significant impact. Reviews tend to be very high and intercorrelated for all apartments. Therefore, only cleanliness and location reviews made it into the final model. Many amenities important for someone searching for a room, like WiFi and the access to a properly equipped kitchen, have small effects on the room price, as they can be found in most London apartments. In contrast, Luxury amenities like the presence of an elevator, a TV and a dryer create costs for the host and thus increase the price.<br>
+The results of this paper have direct implications for understanding the pricing of Airbnbs in London. Most apartments will have a price below £100, with some highly expensive exceptions. Secondly, location is the predominant factor on the price. Both mean rent, which accounts for the attractiveness of the neighbourhood, and the distance to city centre have a strong impact on the regression model. So, when on a short budget, deductions on the location can be recommended.<br>
+On the other hand, only some of the farther-reaching factors showed a significant impact. Reviews tend to be very high and intercorrelated for all apartments. Therefore, only cleanliness and location reviews made it into the final model. Many amenities important for someone searching for a room, like WiFi and the access to a properly equipped kitchen, have small effects on the room price, as they can be found in most London apartments. In contrast, luxury amenities like the presence of an elevator, a TV and a dryer create costs for the host and thus increase the price.<br>
 Looking at these different attributes of an Airbnb ad, the user is able to determine whether the price of the apartment is actually fair, which was the aim of this report.
 
 This paper could be improved through several extensions. Machine learning methods applied on the photos of the room could provide a more objective measure of its attractiveness. Moreover, many other types of data could be collected. For example, the age of the flat or the crime rate in the neighbourhood could provide more information not currently present in the dataset. It could also be explored how Airbnb prices vary in time – whether rooms booked last-minute tend to be more expensive, and whether the prices are affected by seasonality.
