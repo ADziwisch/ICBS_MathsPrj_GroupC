@@ -14,6 +14,7 @@ csl: harvard-imperial-college-london.csl
 ---
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
+library(plyr)
 library(ggplot2)
 library(dplyr)
 library(pracma)
@@ -26,7 +27,6 @@ library(nortest)
 library(stargazer)
 library(gridExtra)
 library(car)
-library(plyr)
 
 load("data_short.RData")
 
@@ -64,7 +64,7 @@ This raises concerns about the normality of its distribution. In fact, the plot 
 ```{r echo=FALSE, fig.width=10, fig.height=3.5, fig.cap="Figure 1: Density of Price and ln(Price)"}
 p1 <- data_short %>% ggplot(aes(x = price)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "Price", y = "Density") + 
   theme_minimal() + geom_vline(xintercept = mean(data_short$price), col = "#4C00FFFF")
-p2 <- data_short %>% ggplot(aes(x = price_log)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "Ln(Price)", y = "Density") + 
+p2 <- data_short %>% ggplot(aes(x = price_log)) + geom_density(fill = "#00E5FFFF", alpha = .5, color = NA) + labs(x = "ln(Price)", y = "Density") + 
   theme_minimal() + geom_vline(xintercept = mean(data_short$price_log), col = "#4C00FFFF")
 
 grid.arrange(p1, p2, ncol = 2, widths = c(1.5, 1))
@@ -92,7 +92,7 @@ map2 <- ggplot() +
   geom_polygon(data = lnd_f, aes(long, lat, group = group), fill = "grey95", color = "grey32") +
   geom_point(data = data_short, aes(east, north, color = price_log), alpha = 0.5, size = 1) +
   labs(x = 'Easting', y = 'Northing') + coord_equal() +
-  theme_minimal() + scale_colour_gradientn(colours = topo.colors(4), name="Ln(Price)") +
+  theme_minimal() + scale_colour_gradientn(colours = topo.colors(4), name="ln(Price)") +
   theme(legend.position = c(0.9, 0.15), legend.background = element_rect(fill = "white", color = "white"))
 
 grid.arrange(map1, map2, ncol = 2)
@@ -110,7 +110,7 @@ When choosing an Airbnb in London, staying close to the city centre is preferred
 cuts <- data.frame(price_log = data_short$price_log, dist_bin = cut(data_short$distance, 10))
 
 cuts %>% ggplot() + geom_boxplot(aes(x = dist_bin, y = price_log), fill = "#00E5FFFF", alpha = .5, color = "#333333") + theme_minimal() + coord_flip() + scale_x_discrete(limits = rev(levels(cuts$dist_bin))) +
-  ylab("Ln(Price)") + xlab("Distance in km")
+  ylab("ln(Price)") + xlab("Distance in km")
 ```
 
 
@@ -170,7 +170,7 @@ descriptives_rating <- data.frame(
                                round(cor(data_short$price_log, data_short$review_scores_rating, use = "complete.obs"),2)))
 
 colnames(descriptives_rating) = c("Name", "Minimum", "Maximum", "Mean", "Correlation to Overall Score", "Correlation to Price")
-formattable(descriptives_rating, caption = "Table 3: Descriptives of Rating")
+formattable(descriptives_rating, caption = "Table 3: Correlation Analyses on Review Scores")
 ```
 
 ## Property Characteristics
@@ -185,7 +185,7 @@ t_summary <- data.frame(names = c("Accommodates", "Beds"), p_value = c(fp(t1$p.v
 
 colnames(t_summary) <- c("Variable", "P-Value", "Conf-Int. Low", "Estimate", "Conf-Int. High")
 
-formattable(t_summary, caption = "Table 4: Descriptives of Capacity")
+formattable(t_summary, caption = "Table 4: Results cor.Test on Capacity Indicators")
 ```
 
 The variables accommodates (how many people can stay in the property) and beds (the number of beds in the property) give an indication of the overall capacity of the Airbnb. Both variables have a relation to the room price that is significantly different to zero. However, both correlations are weak, suggesting that even though price rises with capacity, it rises slowly.
@@ -247,8 +247,8 @@ t7 <- t.test(data_short[data_short[, "amen_Lock_on_bedroom_door"] == "TRUE", "pr
 t_data <- data.frame(amenities = c("Washer", "TV", "Familiy / Kid-Friendly", "Dryer", "Kitchen", "Elevator in Building", "Lock on Bedroom Door"), P_Value = c(fp(t1$p.value), fp(t2$p.value), fp(t3$p.value), fp(t4$p.value), fp(t5$p.value), fp(t6$p.value), fp(t7$p.value)), Mean_With = c(round(t1$estimate[1],2), round(t2$estimate[1],2), round(t3$estimate[1],2), round(t4$estimate[1],2), round(t5$estimate[1],2), round(t6$estimate[1],2), round(t7$estimate[1],2)), Mean_Without = c(round(t1$estimate[2],2), round(t2$estimate[2],2), round(t3$estimate[2],2), round(t4$estimate[2],2), round(t5$estimate[2],2), round(t6$estimate[2],2), round(t7$estimate[2],2)))
 
 t_data <- t_data %>% mutate(Difference = Mean_With - Mean_Without)
-colnames(t_data) <- c("Amenities", "P-Value", "Mean ln(Price) Incl", "Mean ln(Price) Excl", "Difference ln(Price)")
-formattable(t_data, caption = "Table 5: Descriptives of Selected Amenities")
+colnames(t_data) <- c("Amenities", "P-Value", "ln(Price) Incl.", "ln(Price) Excl.", "Difference ln(Price)")
+formattable(t_data, caption = "Table 5: Results t.Tests on selected Amenities")
 ```
 
 ## Attributes of the Ad
@@ -260,7 +260,7 @@ t2 <- cor.test(as.numeric(data_short$cancellation_policy), data_short$price_log)
 
 t_data_ad <- data.frame(attributes = c("Instant Bookable", "Cancellation Policy"), p_vals = c(fp(t1$p.value), fp(t2$p.value)))
 colnames(t_data_ad) <- c("Attributes", "P-Value")
-formattable(t_data_ad, caption = "Table 6: Descriptives of Ad Properties")
+formattable(t_data_ad, caption = "Table 6: Test Results on Ad Attributes")
 ```
 
 Usually, a guest needs to submit a booking request and gets to stay in the property only if the host approves that request. To attract more customers, some hosts allow instant booking of their properties, which is similar to booking a hotel - the user just books the property straight away. In the dataset, TRUE means guests can book the desired property instantly, while FALSE means they have to get approval from the host first.
@@ -300,7 +300,7 @@ m2 <- lm(price_log ~ mean_rent +
                           amen_Lock_on_bedroom_door +
                           amen_TV,
          data = data_short)
-stargazer(list(m1,m2), type = "html", single.row = TRUE,  title="Table 7: Regression Results",  dep.var.labels=c("Ln Price"), covariate.labels=c("Mean Rent", "Distance", "Review Score - Rating", "Review Score - Accuracy", "Review Score - Check-In",  "Review Score - Cleanliness",  "Review Score - Communication", "Review Score - Location", "Review Score - Value", "Accommodates", "Number of Beds", "Amenity - Dryer", "Amenity - Elevator", "Amenity - Family friendly", "Amenity - Lock on Bedroom Door", "Amenity - TV", "Amenity - Washer", "Instant bookable - FALSE", "Cancellation Policy - Moderate", "Cancellation Policy - Strict"))
+stargazer(list(m1,m2), type = "html", single.row = TRUE,  title="Table 7: Regression Results",  dep.var.labels=c("ln(Price)"), covariate.labels=c("Mean Rent", "Distance", "Review Score - Rating", "Review Score - Accuracy", "Review Score - Check-In",  "Review Score - Cleanliness",  "Review Score - Communication", "Review Score - Location", "Review Score - Value", "Accommodates", "Number of Beds", "Amenity - Dryer", "Amenity - Elevator", "Amenity - Family friendly", "Amenity - Lock on Bedroom Door", "Amenity - TV", "Amenity - Washer", "Instant bookable - FALSE", "Cancellation Policy - Moderate", "Cancellation Policy - Strict"))
 
 ```
 
@@ -318,19 +318,13 @@ $$\begin{gather*} ln(price) =  \beta_0 + \beta_1(mean\_rent) + \beta_2(distance)
 
 ```{r echo=FALSE}
 data_model <- data.frame(price = data_short$price, price_log = data_short$price_log, residuals = m2$residuals)
-high_residuals <- data_model %>%
-  select(price, price_log, residuals) %>%
-  filter(residuals > 0.3)
 
-low_residuals <- data_model %>%
-  select(price, price_log, residuals) %>%
-  filter(residuals <= 0.3)
+data_model <- data_model %>% group_by(residuals <= 0.3) %>% summarise(n = n(), p_ln = round(mean(price_log), 2), p = round(mean(price), 2))
 
-descriptives_residuals <- data.frame(Name=c("Data with high residuals", "Data with low residuals"),
-                                     LN_Mean_Rent=c(round(mean(high_residuals$price_log), 2), round(mean(low_residuals$price_log),2)),
-                                     Mean_Rent=c(round(mean(high_residuals$price), 2), round(mean(low_residuals$price),2)))
-colnames(descriptives_residuals) = c("Name", "Mean Ln(Price)", "Mean Price")
-formattable(descriptives_residuals, caption = "Table 8: Residuals")
+colnames(data_model) <- c("Group", "Count", "ln(Price)", "Price")
+data_model$Group <- c("Residuals >0.3", "Residuals <=0.3")
+
+formattable(data_model, caption = "Table 8: Residuals")
 ```
 
 ```{r eval=FALSE, echo=FALSE}
@@ -349,7 +343,7 @@ data_model <- data.frame(price = data_short$price, price_log = data_short$price_
 ggplot(data = data_model, aes(x = price_log, y= residuals)) +
   geom_point(col = "#00E5FFFF", alpha = 0.5) +
   geom_smooth(method = "lm", se = FALSE, col ="#4C00FFFF") +
-  theme_minimal() + xlab("Ln(Price)") + ylab("Residuals")
+  theme_minimal() + xlab("ln(Price)") + ylab("Residuals")
 
 ```
 
@@ -389,6 +383,10 @@ ggplot(data = data_model, aes(x = predicted, y = price_log)) +
 
 # Conclusion
 
-Despite the fact that the presented model has obvious limitations regarding factors that could not be quantified, it has direct implications for finding a reasonably priced apartment. Many attributes important for someone searching for a room, like WiFi and the access to a properly equipped kitchen, have small effects on the room price, as they are present in most London apartments. Luxury amenities like the presence of an elevator, a TV and a dryer create costs. It is also good advice to check apartments in less attractive neighbourhoods to save money. Regarding cleanliness, a well-maintained room will be more expensive. Looking at these different attributes of an Airbnb ad, the user is able to determine whether the price of the apartment is actually fair, which was the aim of this report. In order to improve the scope of this paper, the following extension are recommended: Machine learning and picture research methods could provide more objective measures of the attractiveness of the flat, building and neighbourhood. With a broader exploration of the pictures provided in the advertisements, an indicator of room standard could be implemented. 
+The results of this paper have direct implications on understanding the pricing of Airbnbs in London. Most apartments will have a price below £100, with some highly expensive exceptions. Secondly, location is the predominant factor on the price. Both mean rent, which accounts for the attractiveness of the neighbourhood, and the distance to city centre have a strong impact on the regression model. So, when on a short budget, deductions on the location can be recommended.<br>
+On the other hand, only some of the farther-reaching factors showed a significant impact. Reviews tend to be very high and intercorrelated for all apartments. Therefore, only cleanliness and location reviews made it into the final model. Many amenities important for someone searching for a room, like WiFi and the access to a properly equipped kitchen, have small effects on the room price, as they can be found in most London apartments. In contrast, Luxury amenities like the presence of an elevator, a TV and a dryer create costs for the host and thus increase the price.<br>
+Looking at these different attributes of an Airbnb ad, the user is able to determine whether the price of the apartment is actually fair, which was the aim of this report.
+
+This paper could be improved through several extensions. Machine learning methods applied on the photos of the room could provide a more objective measure of its attractiveness. Moreover, many other types of data could be collected. For example, the age of the flat or the crime rate in the neighbourhood could provide more information not currently present in the dataset. It could also be explored how Airbnb prices vary in time – whether rooms booked last-minute tend to be more expensive, and whether the prices are affected by seasonality.
 
 # Bibliography
